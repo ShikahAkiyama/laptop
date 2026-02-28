@@ -64,6 +64,7 @@ const editLaptop = (id) => {
     document.getElementById('price').value = data.price;
     document.getElementById('stock').value = data.stock;
     document.getElementById('status').value = data.status || 'active'; // Default active jika data lama
+    document.getElementById('images').value = (data.images || []).join(', ');
 
     // Ubah tampilan tombol
     const btnSubmit = document.querySelector('#laptopForm button[type="submit"]');
@@ -285,6 +286,7 @@ document.getElementById('laptopForm').addEventListener('submit', async (e) => {
             price: Number(document.getElementById('price').value),
             stock: Number(document.getElementById('stock').value),
             status: document.getElementById('status').value,
+            images: document.getElementById('images').value.split(',').map(url => url.trim()).filter(url => url !== ''),
             updatedAt: new Date()
         };
 
@@ -356,12 +358,19 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
             statusEl.innerText = `Mengupload data ke-${i + 1} dari ${total}...`;
             
             const cols = row.split(delimiter);
-            if (cols.length < 8) continue;
+            if (cols.length < 8) continue; // Minimal sampai stock
 
             try {
                 // Bersihkan angka dari karakter non-digit (misal: Rp, titik)
                 const priceClean = cols[6].replace(/[^0-9]/g, '');
                 const stockClean = cols[7].replace(/[^0-9]/g, '');
+                
+                // Parse Images (Kolom ke-9, index 8)
+                // Gunakan separator | untuk multiple images di CSV agar aman dari delimiter koma
+                let images = [];
+                if (cols[8]) {
+                    images = cols[8].split('|').map(url => url.trim()).filter(url => url !== '');
+                }
 
                 await addDoc(collection(db, "laptops"), {
                     brand: cols[0].trim(),
@@ -373,6 +382,7 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
                     price: Number(priceClean),
                     stock: Number(stockClean),
                     status: 'active', // Default aktif untuk upload CSV
+                    images: images,
                     createdAt: new Date()
                 });
                 successCount++;
@@ -402,5 +412,74 @@ document.getElementById('brand').addEventListener('change', function() {
         customDiv.classList.add('d-none');
         customInput.removeAttribute('required');
         customInput.value = ''; // Reset nilai
+    }
+});
+
+// Logic Download CSV
+document.getElementById('btnDownloadCsv').addEventListener('click', () => {
+    if (allLaptopsList.length === 0) {
+        showToast('Tidak ada data untuk diunduh', 'error');
+        return;
+    }
+
+    // Header sesuai format upload (menggunakan delimiter titik koma ';' agar lebih aman)
+    let csvContent = "brand;model;processor;ram;storage;features;price;stock;images\n";
+
+    allLaptopsList.forEach(item => {
+        // Helper untuk membersihkan teks dari delimiter (;) dan new line agar CSV tidak rusak
+        const clean = (text) => String(text || '').replace(/;/g, ',').replace(/\n/g, ' ').trim();
+        
+        const images = (item.images || []).join('|');
+
+        const row = [
+            clean(item.brand),
+            clean(item.model),
+            clean(item.processor),
+            clean(item.ram),
+            clean(item.storage),
+            clean(item.features),
+            item.price,
+            item.stock,
+            images
+        ].join(';');
+        
+        csvContent += row + "\n";
+    });
+
+    // Trigger Download File
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `data_laptop_${new Date().toISOString().slice(0,10)}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+});
+
+// Logic Hapus Semua Data
+document.getElementById('btnDeleteAll').addEventListener('click', async () => {
+    if (allLaptopsList.length === 0) {
+        showToast('Database sudah kosong.', 'error');
+        return;
+    }
+
+    if (confirm(`PERINGATAN FATAL: \nAnda akan menghapus ${allLaptopsList.length} data laptop secara permanen!\n\nData yang dihapus TIDAK BISA dikembalikan. Pastikan Anda sudah backup/download CSV.\n\nLanjutkan menghapus?`)) {
+        const btn = document.getElementById('btnDeleteAll');
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerText = 'Sedang Menghapus...';
+
+        try {
+            const deletePromises = allLaptopsList.map(item => deleteDoc(doc(db, "laptops", item.id)));
+            await Promise.all(deletePromises);
+            showToast('Semua data berhasil dihapus!', 'success');
+        } catch (error) {
+            showToast('Gagal menghapus sebagian data: ' + error.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
     }
 });

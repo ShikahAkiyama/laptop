@@ -189,7 +189,7 @@
             </div>
             <div class="modal-body p-4">
                 <div class="row">
-                    <div class="col-md-5 text-center mb-3 mb-md-0 d-flex align-items-center justify-content-center bg-light rounded-3" style="min-height: 200px;">
+                    <div class="col-md-5 text-center mb-3 mb-md-0 d-flex align-items-center justify-content-center bg-light rounded-3 position-relative" style="min-height: 200px; overflow: hidden;" id="modalImageContainer">
                         <i class="bi bi-laptop display-1 text-secondary"></i>
                     </div>
                     <div class="col-md-7">
@@ -300,9 +300,15 @@
     // Fungsi Render Baris Tabel (Khusus Lenovo)
     const renderTableRow = (data) => {
         const stockBadge = data.stock < 5 ? 'bg-danger' : 'bg-primary';
+        const thumb = (data.images && data.images.length > 0) ? data.images[0] : 'assets/logo.png'; // Fallback logo jika tidak ada gambar
         return `
             <tr onclick="window.openDetail('${data.id}')">
-                <td><b>${data.model}</b></td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <img src="${thumb}" alt="" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; margin-right: 10px;">
+                        <b>${data.model}</b>
+                    </div>
+                </td>
                 <td>${data.processor}</td>
                 <td>${data.ram} / ${data.storage}</td>
                 <td>${data.features}</td>
@@ -315,9 +321,13 @@
     // Fungsi Render Card (Khusus Dell & HP)
     const renderCard = (data) => {
         const stockBadge = data.stock < 5 ? 'bg-danger' : 'bg-primary';
+        const thumb = (data.images && data.images.length > 0) ? data.images[0] : 'assets/logo.png';
         return `
             <div class="col-md-4" onclick="window.openDetail('${data.id}')">
                 <div class="card h-100 p-3">
+                    <div style="height: 180px; overflow: hidden; border-radius: 8px; margin-bottom: 10px; background: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+                        <img src="${thumb}" alt="${data.model}" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
                     <h5>${data.model}</h5>
                     <p class="spec-label">${data.processor} | ${data.ram} | ${data.storage}</p>
                     <p class="small">${data.features}</p>
@@ -415,6 +425,33 @@
         document.getElementById('modalRamStorage').innerText = `${laptop.ram} / ${laptop.storage}`;
         document.getElementById('modalFeatures').innerText = laptop.features;
         
+        // Render Images (Carousel or Single Image)
+        const imgContainer = document.getElementById('modalImageContainer');
+        if (laptop.images && laptop.images.length > 0) {
+            if (laptop.images.length === 1) {
+                imgContainer.innerHTML = `<img src="${laptop.images[0]}" class="img-fluid rounded-3" style="max-height: 300px; object-fit: contain;">`;
+            } else {
+                // Bootstrap Carousel
+                let indicators = '';
+                let items = '';
+                laptop.images.forEach((img, idx) => {
+                    const active = idx === 0 ? 'active' : '';
+                    indicators += `<button type="button" data-bs-target="#productCarousel" data-bs-slide-to="${idx}" class="${active}"></button>`;
+                    items += `<div class="carousel-item ${active}"><img src="${img}" class="d-block w-100 rounded-3" style="height: 300px; object-fit: contain;"></div>`;
+                });
+                
+                imgContainer.innerHTML = `
+                    <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-indicators">${indicators}</div>
+                        <div class="carousel-inner">${items}</div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon" aria-hidden="true"></span></button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next"><span class="carousel-control-next-icon" aria-hidden="true"></span></button>
+                    </div>`;
+            }
+        } else {
+            imgContainer.innerHTML = `<i class="bi bi-laptop display-1 text-secondary"></i>`;
+        }
+
         const stockBadge = document.getElementById('modalStock');
         stockBadge.innerText = `Stok: ${laptop.stock} Unit`;
         stockBadge.className = `badge ${laptop.stock < 5 ? 'bg-danger' : 'bg-primary'}`;

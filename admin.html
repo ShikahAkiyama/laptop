@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Input Laptop</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="admin.css">
 </head>
 <body class="bg-light">
@@ -88,6 +89,10 @@
                                         <option value="inactive">❌ Non-Aktif (Disembunyikan)</option>
                                     </select>
                                 </div>
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label">URL Gambar (Pisahkan dengan koma jika lebih dari 1)</label>
+                                    <input type="text" class="form-control" id="images" placeholder="https://example.com/foto1.jpg, https://example.com/foto2.jpg">
+                                </div>
                             </div>
                             <button type="submit" class="btn btn-success w-100">Simpan Data ke Database</button>
                             <button type="button" id="btnCancel" class="btn btn-secondary w-100 mt-2 d-none">Batal Edit</button>
@@ -100,10 +105,17 @@
             <div class="col-md-8 mt-4 mb-5 no-print">
                 <div class="card shadow">
                     <div class="card-header bg-success text-white">
-                        <h4 class="mb-0">Upload Data via CSV (Massal)</h4>
+                        <h4 class="mb-0">Import / Export Data CSV</h4>
                     </div>
                     <div class="card-body">
-                        <p class="text-muted">Format CSV: brand;model;processor;ram;storage;features;price;stock</p>
+                        <button id="btnDownloadCsv" class="btn btn-primary w-100 mb-2">
+                            <i class="bi bi-download me-2"></i> Download Data Saat Ini (CSV)
+                        </button>
+                        <button id="btnDeleteAll" class="btn btn-danger w-100 mb-4">
+                            <i class="bi bi-trash me-2"></i> Hapus Semua Data Database
+                        </button>
+                        <h5 class="fw-bold">Upload Data Baru</h5>
+                        <p class="text-muted">Format CSV: brand;model;processor;ram;storage;features;price;stock;images(pisahkan dengan |)</p>
                         <div class="mb-3">
                             <input class="form-control" type="file" id="csvFile" accept=".csv">
                         </div>
