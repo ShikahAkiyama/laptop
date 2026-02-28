@@ -217,6 +217,15 @@
                 allLaptopsList.push({ id: docSnap.id, ...data });
             });
 
+            // Update Counter pada Tombol Filter
+            const totalCount = allLaptopsList.length;
+            const activeCount = allLaptopsList.filter(item => (item.status || 'active') === 'active').length;
+            const inactiveCount = allLaptopsList.filter(item => item.status === 'inactive').length;
+
+            document.querySelector('button[data-filter="all"]').innerText = `Semua (${totalCount})`;
+            document.querySelector('button[data-filter="active"]').innerText = `Aktif Only (${activeCount})`;
+            document.querySelector('button[data-filter="inactive"]').innerText = `Non-Aktif (${inactiveCount})`;
+
             // Render ulang dengan keyword yang ada di input (jika ada)
             const searchVal = document.getElementById('searchInput').value;
             renderTable(searchVal);
