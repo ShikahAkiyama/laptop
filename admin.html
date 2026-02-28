@@ -6,11 +6,15 @@
     <title>Admin Input Laptop</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        @page {
+            size: auto;
+            margin: 0mm; /* Menghilangkan header/footer browser (URL, Judul, Tanggal) */
+        }
         @media print {
             .no-print { display: none !important; }
             .card { border: none !important; box-shadow: none !important; }
             .card-header { display: none !important; }
-            body { background-color: white !important; -webkit-print-color-adjust: exact; }
+            body { background-color: white !important; -webkit-print-color-adjust: exact; margin: 1cm; }
             /* Sembunyikan kolom Aksi (kolom ke-4) */
             #adminTable th:nth-child(4), #adminTable td:nth-child(4) { display: none !important; }
             .printable-header { display: block !important; margin-bottom: 20px; text-align: center; }
@@ -109,7 +113,7 @@
                         <h4 class="mb-0">Upload Data via CSV (Massal)</h4>
                     </div>
                     <div class="card-body">
-                        <p class="text-muted">Format CSV: brand,model,processor,ram,storage,features,price,stock</p>
+                        <p class="text-muted">Format CSV: brand;model;processor;ram;storage;features;price;stock</p>
                         <div class="mb-3">
                             <input class="form-control" type="file" id="csvFile" accept=".csv">
                         </div>
@@ -178,6 +182,20 @@
         </div>
     </div>
 
+    <!-- Toast Notification -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3 no-print">
+        <div id="liveToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="toastMessage">
+                    Berhasil!
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -199,6 +217,54 @@
         const laptopsData = {};
         let allLaptopsList = []; // Array untuk menyimpan data agar mudah difilter
         let currentFilter = 'all'; // Status filter saat ini
+
+        // Fungsi Menampilkan Toast
+        const showToast = (message, type = 'success') => {
+            const toastEl = document.getElementById('liveToast');
+            const toastBody = document.getElementById('toastMessage');
+            
+            toastBody.innerText = message;
+            toastEl.className = `toast align-items-center text-white border-0 ${type === 'success' ? 'bg-success' : 'bg-danger'}`;
+            
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        };
+
+        // Fungsi Edit: Mengisi form dengan data yang dipilih
+        const editLaptop = (id) => {
+            const data = laptopsData[id];
+            if (!data) return;
+
+            document.getElementById('docId').value = id;
+            document.getElementById('brand').value = data.brand;
+            document.getElementById('model').value = data.model;
+            document.getElementById('processor').value = data.processor;
+            document.getElementById('ram').value = data.ram;
+            document.getElementById('storage').value = data.storage;
+            document.getElementById('features').value = data.features;
+            document.getElementById('price').value = data.price;
+            document.getElementById('stock').value = data.stock;
+            document.getElementById('status').value = data.status || 'active'; // Default active jika data lama
+
+            // Ubah tampilan tombol
+            const btnSubmit = document.querySelector('#laptopForm button[type="submit"]');
+            btnSubmit.innerText = 'Update Data';
+            btnSubmit.classList.replace('btn-success', 'btn-warning');
+            
+            document.getElementById('btnCancel').classList.remove('d-none');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // Fungsi Hapus
+        const deleteLaptop = async (id) => {
+            if (confirm('Apakah Anda yakin ingin menghapus data laptop ini?')) {
+                try {
+                    await deleteDoc(doc(db, "laptops", id));
+                } catch (error) {
+                    showToast('Gagal menghapus: ' + error.message, 'error');
+                }
+            }
+        };
 
         // Fungsi Render Tabel
         const renderTable = () => {
@@ -326,42 +392,6 @@
             });
         });
 
-        // Fungsi Edit: Mengisi form dengan data yang dipilih
-        const editLaptop = (id) => {
-            const data = laptopsData[id];
-            if (!data) return;
-
-            document.getElementById('docId').value = id;
-            document.getElementById('brand').value = data.brand;
-            document.getElementById('model').value = data.model;
-            document.getElementById('processor').value = data.processor;
-            document.getElementById('ram').value = data.ram;
-            document.getElementById('storage').value = data.storage;
-            document.getElementById('features').value = data.features;
-            document.getElementById('price').value = data.price;
-            document.getElementById('stock').value = data.stock;
-            document.getElementById('status').value = data.status || 'active'; // Default active jika data lama
-
-            // Ubah tampilan tombol
-            const btnSubmit = document.querySelector('#laptopForm button[type="submit"]');
-            btnSubmit.innerText = 'Update Data';
-            btnSubmit.classList.replace('btn-success', 'btn-warning');
-            
-            document.getElementById('btnCancel').classList.remove('d-none');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-
-        // Fungsi Hapus
-        const deleteLaptop = async (id) => {
-            if (confirm('Apakah Anda yakin ingin menghapus data laptop ini?')) {
-                try {
-                    await deleteDoc(doc(db, "laptops", id));
-                } catch (error) {
-                    alert('Gagal menghapus: ' + error.message);
-                }
-            }
-        };
-
         // Fungsi Reset Form (Batal Edit / Selesai Simpan)
         const resetForm = () => {
             document.getElementById('laptopForm').reset();
@@ -400,19 +430,19 @@
                 if (id) {
                     // Mode Update
                     await updateDoc(doc(db, "laptops", id), laptopData);
-                    alert('Data berhasil diupdate!');
+                    showToast('Data berhasil diupdate!', 'success');
                     resetForm();
                 } else {
                     // Mode Tambah Baru
                     laptopData.createdAt = new Date();
                     await addDoc(collection(db, "laptops"), laptopData);
-                    alert('Data berhasil disimpan!');
+                    showToast('Data berhasil disimpan!', 'success');
                     e.target.reset();
                     btn.innerText = 'Simpan Data ke Database';
                 }
             } catch (error) {
                 console.error("Error:", error);
-                alert('Gagal menyimpan: ' + error.message);
+                showToast('Gagal menyimpan: ' + error.message, 'error');
                 btn.innerText = originalText;
             } finally {
                 btn.disabled = false;
@@ -448,7 +478,7 @@
                 }
 
                 if (dataRows.length === 0) {
-                    alert('Data CSV kosong atau format tidak terbaca.');
+                    showToast('Data CSV kosong atau format tidak terbaca.', 'error');
                     btn.disabled = false;
                     btn.innerText = 'Upload CSV';
                     return;
@@ -491,7 +521,7 @@
                 }
                 
                 statusEl.innerText = `Selesai! ${successCount} data berhasil disimpan.`;
-                alert(`Berhasil mengupload ${successCount} data laptop!`);
+                showToast(`Berhasil mengupload ${successCount} data laptop!`, 'success');
                 btn.disabled = false;
                 btn.innerText = 'Upload CSV';
                 fileInput.value = ''; // Reset input
