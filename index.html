@@ -47,6 +47,13 @@
         body.dark-mode .spec-label { color: #aaa; }
         body.dark-mode .bg-light { background-color: #2c2c2c !important; }
         body.dark-mode .navbar-brand img { background: rgba(255,255,255,0.9); padding: 2px; border-radius: 4px; }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; opacity: 0; }
     </style>
 </head>
 <body>
@@ -373,7 +380,7 @@
         }
 
         return `
-            <div class="col-md-4" onclick="window.openDetail('${data.id}')">
+            <div class="col-md-4 fade-in" onclick="window.openDetail('${data.id}')">
                 <div class="card h-100 p-3 position-relative">
                     ${discountBadge}
                     <h5>${data.model}</h5>
@@ -442,6 +449,13 @@
         });
 
         renderLaptops(allLaptops);
+
+        // Cek URL Parameter untuk Auto Open Modal
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+        if (productId) {
+            window.openDetail(productId);
+        }
     }
 
     // Fungsi Filter Gabungan (Search + Price)
@@ -533,7 +547,8 @@
         stockBadge.className = `badge ${laptop.stock < 5 ? 'bg-danger' : 'bg-primary'}`;
 
         // Update Link WhatsApp
-        const message = `Halo, saya tertarik dengan laptop ${laptop.brand} ${laptop.model} seharga ${formatRupiah(laptop.price)}. Apakah barangnya masih ready?`;
+        const productUrl = `${window.location.origin}${window.location.pathname}?id=${laptop.id}`;
+        const message = `Halo, saya tertarik dengan laptop ${laptop.brand} ${laptop.model} seharga ${formatRupiah(laptop.price)}.\n\nLink: ${productUrl}\n\nApakah barangnya masih ready?`;
         document.getElementById('modalWaBtn').href = `https://wa.me/628994335111?text=${encodeURIComponent(message)}`;
 
         // Setup Tombol Tambah ke Keranjang
