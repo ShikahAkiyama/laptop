@@ -62,9 +62,11 @@ const editLaptop = (id) => {
     document.getElementById('storage').value = data.storage;
     document.getElementById('features').value = data.features;
     document.getElementById('price').value = data.price;
+    document.getElementById('originalPrice').value = data.originalPrice || '';
     document.getElementById('stock').value = data.stock;
     document.getElementById('status').value = data.status || 'active'; // Default active jika data lama
     document.getElementById('images').value = (data.images || []).join(', ');
+    document.getElementById('misc').value = data.misc || '';
 
     // Ubah tampilan tombol
     const btnSubmit = document.querySelector('#laptopForm button[type="submit"]');
@@ -284,9 +286,11 @@ document.getElementById('laptopForm').addEventListener('submit', async (e) => {
             storage: document.getElementById('storage').value,
             features: document.getElementById('features').value,
             price: Number(document.getElementById('price').value),
+            originalPrice: Number(document.getElementById('originalPrice').value),
             stock: Number(document.getElementById('stock').value),
             status: document.getElementById('status').value,
             images: document.getElementById('images').value.split(',').map(url => url.trim()).filter(url => url !== ''),
+            misc: document.getElementById('misc').value,
             updatedAt: new Date()
         };
 
@@ -370,12 +374,18 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
             try {
                 // Bersihkan angka dari karakter non-digit (misal: Rp, titik)
                 const priceClean = cols[6].replace(/[^0-9]/g, '');
-                const stockClean = cols[7].replace(/[^0-9]/g, '');
+                const originalPriceClean = cols[7] ? cols[7].replace(/[^0-9]/g, '') : '0';
+                const stockClean = cols[8].replace(/[^0-9]/g, '');
                 
-                // Parse Images (Kolom ke-9, index 8)
+                // Parse Images (Kolom ke-10, index 9)
                 let images = [];
-                if (cols[8]) {
-                    images = cols[8].split('|').map(url => url.trim()).filter(url => url !== '');
+                if (cols[9]) {
+                    images = cols[9].split('|').map(url => url.trim()).filter(url => url !== '');
+                }
+                
+                let misc = '';
+                if (cols[10]) {
+                    misc = cols[10].trim();
                 }
 
                 const laptopData = {
@@ -386,9 +396,11 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
                     storage: cols[4].trim(),
                     features: cols[5].trim(),
                     price: Number(priceClean),
+                    originalPrice: Number(originalPriceClean),
                     stock: Number(stockClean),
                     status: 'active',
-                    images: images
+                    images: images,
+                    misc: misc
                 };
 
                 // Cek Duplikasi berdasarkan Model (Case Insensitive)
@@ -448,7 +460,7 @@ document.getElementById('btnDownloadCsv').addEventListener('click', () => {
     }
 
     // Header sesuai format upload (menggunakan delimiter titik koma ';' agar lebih aman)
-    let csvContent = "brand;model;processor;ram;storage;features;price;stock;images\n";
+    let csvContent = "brand;model;processor;ram;storage;features;price;originalPrice;stock;images;misc\n";
 
     allLaptopsList.forEach(item => {
         // Helper untuk membersihkan teks
@@ -479,8 +491,10 @@ document.getElementById('btnDownloadCsv').addEventListener('click', () => {
             clean(item.storage),
             clean(item.features),
             item.price || 0,
+            item.originalPrice || 0,
             item.stock || 0,
-            images
+            images,
+            clean(item.misc)
         ].join(';');
         
         csvContent += row + "\n";

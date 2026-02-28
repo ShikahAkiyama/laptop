@@ -74,11 +74,15 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Harga (Rp)</label>
-                                    <input type="number" class="form-control" id="price" placeholder="Tanpa titik/koma" required>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Harga Jual (Promo)</label>
+                                    <input type="number" class="form-control" id="price" placeholder="Harga Tayang" required>
                                 </div>
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Harga Coret (Opsional)</label>
+                                    <input type="number" class="form-control" id="originalPrice" placeholder="Harga Normal">
+                                </div>
+                                <div class="col-md-4 mb-3">
                                     <label class="form-label">Stok</label>
                                     <input type="number" class="form-control" id="stock" required>
                                 </div>
@@ -92,6 +96,10 @@
                                 <div class="col-md-12 mb-3">
                                     <label class="form-label">URL Gambar (Pisahkan dengan koma jika lebih dari 1)</label>
                                     <input type="text" class="form-control" id="images" placeholder="https://example.com/foto1.jpg, https://example.com/foto2.jpg">
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label">Lain-lain (Catatan Tambahan)</label>
+                                    <textarea class="form-control" id="misc" rows="2" placeholder="Contoh: Bonus Tas, Garansi Resmi, Mulus 99%"></textarea>
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-success w-100">Simpan Data ke Database</button>
@@ -115,7 +123,7 @@
                             <i class="bi bi-trash me-2"></i> Hapus Semua Data Database
                         </button>
                         <h5 class="fw-bold">Upload Data Baru</h5>
-                        <p class="text-muted">Format CSV: brand;model;processor;ram;storage;features;price;stock;images(pisahkan dengan |)</p>
+                        <p class="text-muted">Format CSV: brand;model;processor;ram;storage;features;price;originalPrice;stock;images;misc</p>
                         <div class="mb-3">
                             <input class="form-control" type="file" id="csvFile" accept=".csv">
                         </div>
