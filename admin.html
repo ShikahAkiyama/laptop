@@ -146,15 +146,37 @@
                                         <button id="btnResetFilter" class="btn btn-secondary btn-sm w-100">Reset</button>
                                     </div>
                                 </div>
+                                <!-- Opsi Cetak -->
+                                <div class="row g-2 align-items-center mt-2 border-top pt-2">
+                                    <div class="col-auto fw-bold small">👁️ Opsi Cetak:</div>
+                                    <div class="col-auto">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input print-toggle" type="checkbox" id="showBrand" checked data-target="col-brand">
+                                            <label class="form-check-label small" for="showBrand">Brand</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input print-toggle" type="checkbox" id="showSpecs" checked data-target="col-specs">
+                                            <label class="form-check-label small" for="showSpecs">Spesifikasi</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input print-toggle" type="checkbox" id="showPrice" checked data-target="col-price">
+                                            <label class="form-check-label small" for="showPrice">Harga</label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-bordered table-hover align-middle" id="adminTable">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>Brand & Model</th>
-                                        <th>Spesifikasi Utama</th>
-                                        <th>Harga & Stok</th>
+                                        <th class="col-brand">Brand & Model</th>
+                                        <th class="col-specs">Spesifikasi Utama</th>
+                                        <th class="col-price">Harga & Stok</th>
                                         <th style="width: 150px;">Aksi</th>
                                     </tr>
                                 </thead>

@@ -113,15 +113,15 @@ const renderTable = () => {
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td>
+            <td class="col-brand">
                 <span class="badge bg-primary mb-1">${item.brand}</span><br>
                 <b>${item.model}</b>
             </td>
-            <td class="small">
+            <td class="small col-specs">
                 ${item.processor}<br>
                 ${item.ram} | ${item.storage}
             </td>
-            <td>
+            <td class="col-price">
                 Rp ${item.price.toLocaleString('id-ID')}<br>
                 <span class="badge ${item.stock < 5 ? 'bg-danger' : 'bg-primary'} mb-1">Stok: ${item.stock}</span><br>
                 ${statusBadge}
@@ -328,4 +328,17 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
         fileInput.value = ''; // Reset input
     };
     reader.readAsText(file);
+});
+
+// Event Listener Opsi Cetak (Show/Hide Kolom)
+document.querySelectorAll('.print-toggle').forEach(toggle => {
+    toggle.addEventListener('change', (e) => {
+        const table = document.getElementById('adminTable');
+        const target = e.target.dataset.target; // contoh: 'col-brand'
+        if (e.target.checked) {
+            table.classList.remove(`hide-${target}`);
+        } else {
+            table.classList.add(`hide-${target}`);
+        }
+    });
 });
