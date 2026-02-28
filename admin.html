@@ -79,6 +79,7 @@
                             <input class="form-control" type="file" id="csvFile" accept=".csv">
                         </div>
                         <button id="btnUploadCsv" class="btn btn-outline-success w-100">Upload CSV</button>
+                        <div id="uploadStatus" class="mt-2 text-center fw-bold text-primary"></div>
                     </div>
                 </div>
             </div>
@@ -148,17 +149,42 @@
             const reader = new FileReader();
             reader.onload = async function(e) {
                 const text = e.target.result;
-                const rows = text.split('\n').slice(1); // Skip header
-                let successCount = 0;
+                const statusEl = document.getElementById('uploadStatus');
+                
+                // Normalisasi baris baru dan hapus baris kosong
+                const allLines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n').filter(line => line.trim() !== '');
+                
+                // Cek apakah baris pertama adalah header
+                let dataRows = allLines;
+                if (allLines.length > 0 && allLines[0].toLowerCase().includes('brand')) {
+                    dataRows = allLines.slice(1);
+                }
 
-                for (let row of rows) {
-                    if (!row.trim()) continue; // Skip baris kosong
+                if (dataRows.length === 0) {
+                    alert('Data CSV kosong atau format tidak terbaca.');
+                    btn.disabled = false;
+                    btn.innerText = 'Upload CSV';
+                    return;
+                }
+
+                // Deteksi delimiter (koma atau titik koma)
+                const delimiter = dataRows[0].includes(';') ? ';' : ',';
+                
+                let successCount = 0;
+                const total = dataRows.length;
+
+                for (let i = 0; i < total; i++) {
+                    const row = dataRows[i];
+                    statusEl.innerText = `Mengupload data ke-${i + 1} dari ${total}...`;
                     
-                    // Split CSV (asumsi sederhana pemisah koma)
-                    const cols = row.split(',');
+                    const cols = row.split(delimiter);
                     if (cols.length < 8) continue;
 
                     try {
+                        // Bersihkan angka dari karakter non-digit (misal: Rp, titik)
+                        const priceClean = cols[6].replace(/[^0-9]/g, '');
+                        const stockClean = cols[7].replace(/[^0-9]/g, '');
+
                         await addDoc(collection(db, "laptops"), {
                             brand: cols[0].trim(),
                             model: cols[1].trim(),
@@ -166,8 +192,8 @@
                             ram: cols[3].trim(),
                             storage: cols[4].trim(),
                             features: cols[5].trim(),
-                            price: Number(cols[6].trim()),
-                            stock: Number(cols[7].trim()),
+                            price: Number(priceClean),
+                            stock: Number(stockClean),
                             createdAt: new Date()
                         });
                         successCount++;
@@ -175,6 +201,8 @@
                         console.error("Gagal upload baris:", row, err);
                     }
                 }
+                
+                statusEl.innerText = `Selesai! ${successCount} data berhasil disimpan.`;
                 alert(`Berhasil mengupload ${successCount} data laptop!`);
                 btn.disabled = false;
                 btn.innerText = 'Upload CSV';
