@@ -331,7 +331,6 @@
     // Fungsi Render Card (Khusus Dell & HP)
     const renderCard = (data) => {
         const stockBadge = data.stock < 5 ? 'bg-danger' : 'bg-primary';
-        const thumb = (data.images && data.images.length > 0) ? data.images[0] : 'assets/logo.png';
         
         let priceHtml = `<span class="price-text">${formatRupiah(data.price)}</span>`;
         let discountBadge = '';
@@ -346,9 +345,6 @@
             <div class="col-md-4" onclick="window.openDetail('${data.id}')">
                 <div class="card h-100 p-3 position-relative">
                     ${discountBadge}
-                    <div style="height: 180px; overflow: hidden; border-radius: 8px; margin-bottom: 10px; background: #f8f9fa; display: flex; align-items: center; justify-content: center;">
-                        <img src="${thumb}" alt="${data.model}" style="width: 100%; height: 100%; object-fit: cover;">
-                    </div>
                     <h5>${data.model}</h5>
                     <p class="spec-label">${data.processor} | ${data.ram} | ${data.storage}</p>
                     <p class="small">${data.features}</p>
