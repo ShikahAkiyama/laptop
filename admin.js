@@ -38,7 +38,24 @@ const editLaptop = (id) => {
     if (!data) return;
 
     document.getElementById('docId').value = id;
-    document.getElementById('brand').value = data.brand;
+    
+    // Logika Edit Brand: Cek apakah brand ada di dropdown atau custom
+    const brandSelect = document.getElementById('brand');
+    const customDiv = document.getElementById('customBrandDiv');
+    const customInput = document.getElementById('customBrand');
+    
+    // Cek apakah value brand ada di opsi select
+    const optionExists = [...brandSelect.options].some(o => o.value === data.brand);
+
+    if (optionExists) {
+        brandSelect.value = data.brand;
+        customDiv.classList.add('d-none');
+    } else {
+        brandSelect.value = 'Other';
+        customDiv.classList.remove('d-none');
+        customInput.value = data.brand;
+    }
+
     document.getElementById('model').value = data.model;
     document.getElementById('processor').value = data.processor;
     document.getElementById('ram').value = data.ram;
@@ -237,6 +254,7 @@ const resetForm = () => {
     btnSubmit.innerText = 'Simpan Data ke Database';
     btnSubmit.classList.replace('btn-warning', 'btn-success');
     document.getElementById('btnCancel').classList.add('d-none');
+    document.getElementById('customBrandDiv').classList.add('d-none'); // Sembunyikan input manual
 };
 
 document.getElementById('btnCancel').addEventListener('click', resetForm);
@@ -251,8 +269,14 @@ document.getElementById('laptopForm').addEventListener('submit', async (e) => {
     btn.innerText = id ? 'Mengupdate...' : 'Menyimpan...';
 
     try {
+        // Tentukan nilai Brand (dari dropdown atau input manual)
+        let brandValue = document.getElementById('brand').value;
+        if (brandValue === 'Other') {
+            brandValue = document.getElementById('customBrand').value.trim();
+        }
+
         const laptopData = {
-            brand: document.getElementById('brand').value,
+            brand: brandValue,
             model: document.getElementById('model').value,
             processor: document.getElementById('processor').value,
             ram: document.getElementById('ram').value,
@@ -364,4 +388,19 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
         fileInput.value = ''; // Reset input
     };
     reader.readAsText(file);
+});
+
+// Event Listener Dropdown Brand (Tampilkan Input Manual jika pilih Lain-lain)
+document.getElementById('brand').addEventListener('change', function() {
+    const customDiv = document.getElementById('customBrandDiv');
+    const customInput = document.getElementById('customBrand');
+    
+    if (this.value === 'Other') {
+        customDiv.classList.remove('d-none');
+        customInput.setAttribute('required', 'true'); // Wajib diisi jika pilih Lain-lain
+    } else {
+        customDiv.classList.add('d-none');
+        customInput.removeAttribute('required');
+        customInput.value = ''; // Reset nilai
+    }
 });
