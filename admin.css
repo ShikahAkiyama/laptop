@@ -1,0 +1,19 @@
+@page {
+    size: auto;
+    margin: 0mm; /* Menghilangkan header/footer browser (URL, Judul, Tanggal) */
+}
+@media print {
+    .no-print { display: none !important; }
+    .card { border: none !important; box-shadow: none !important; }
+    .card-header { display: none !important; }
+    body { background-color: white !important; -webkit-print-color-adjust: exact; margin: 1cm; }
+    /* Sembunyikan kolom Aksi (kolom ke-4) */
+    #adminTable th:nth-child(4), #adminTable td:nth-child(4) { display: none !important; }
+    /* Sembunyikan Status (Aktif/Non-Aktif) saat cetak */
+    #adminTable .badge.bg-success, #adminTable .badge.bg-secondary { display: none !important; }
+    /* Perkecil font tabel agar muat lebih banyak */
+    #adminTable { font-size: 11px; }
+    #adminTable td, #adminTable th { padding: 4px 8px !important; }
+    .printable-header { display: block !important; margin-bottom: 20px; text-align: center; }
+    .table-responsive { overflow: visible !important; }
+}
