@@ -328,7 +328,11 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
 
     const reader = new FileReader();
     reader.onload = async function(e) {
-        const text = e.target.result;
+        let text = e.target.result;
+
+        // Hapus BOM (Byte Order Mark) jika ada di awal file (biasanya dari Excel CSV UTF-8)
+        text = text.replace(/^\uFEFF/, '');
+
         const statusEl = document.getElementById('uploadStatus');
         
         // Normalisasi baris baru dan hapus baris kosong
@@ -349,8 +353,11 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
 
         // Deteksi delimiter (koma atau titik koma)
         const delimiter = dataRows[0].includes(';') ? ';' : ',';
+        const updateDuplicates = document.getElementById('chkUpdateDuplicates').checked;
         
         let successCount = 0;
+        let duplicateCount = 0;
+        let updatedCount = 0;
         const total = dataRows.length;
 
         for (let i = 0; i < total; i++) {
@@ -366,13 +373,12 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
                 const stockClean = cols[7].replace(/[^0-9]/g, '');
                 
                 // Parse Images (Kolom ke-9, index 8)
-                // Gunakan separator | untuk multiple images di CSV agar aman dari delimiter koma
                 let images = [];
                 if (cols[8]) {
                     images = cols[8].split('|').map(url => url.trim()).filter(url => url !== '');
                 }
 
-                await addDoc(collection(db, "laptops"), {
+                const laptopData = {
                     brand: cols[0].trim(),
                     model: cols[1].trim(),
                     processor: cols[2].trim(),
@@ -381,18 +387,37 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
                     features: cols[5].trim(),
                     price: Number(priceClean),
                     stock: Number(stockClean),
-                    status: 'active', // Default aktif untuk upload CSV
-                    images: images,
-                    createdAt: new Date()
-                });
-                successCount++;
+                    status: 'active',
+                    images: images
+                };
+
+                // Cek Duplikasi berdasarkan Model (Case Insensitive)
+                const modelName = laptopData.model;
+                const existingItem = allLaptopsList.find(item => item.model.toLowerCase() === modelName.toLowerCase());
+
+                if (existingItem) {
+                    if (updateDuplicates) {
+                        // Update Data Lama
+                        laptopData.updatedAt = new Date();
+                        await updateDoc(doc(db, "laptops", existingItem.id), laptopData);
+                        updatedCount++;
+                    } else {
+                        // Skip Duplikat
+                        duplicateCount++;
+                    }
+                } else {
+                    // Tambah Data Baru
+                    laptopData.createdAt = new Date();
+                    await addDoc(collection(db, "laptops"), laptopData);
+                    successCount++;
+                }
             } catch (err) {
                 console.error("Gagal upload baris:", row, err);
             }
         }
         
-        statusEl.innerText = `Selesai! ${successCount} data berhasil disimpan.`;
-        showToast(`Berhasil mengupload ${successCount} data laptop!`, 'success');
+        statusEl.innerText = `Selesai! ${successCount} baru, ${updatedCount} update, ${duplicateCount} dilewati.`;
+        showToast(`Upload: ${successCount} Baru, ${updatedCount} Update`, 'success');
         btn.disabled = false;
         btn.innerText = 'Upload CSV';
         fileInput.value = ''; // Reset input
@@ -429,6 +454,10 @@ document.getElementById('btnDownloadCsv').addEventListener('click', () => {
         // Helper untuk membersihkan teks
         const clean = (text) => {
             let str = String(text || '');
+            
+            // Hapus BOM dan karakter Non-Printable (Control Chars ASCII 0-31 & 127)
+            str = str.replace(/\uFEFF/g, '').replace(/[\x00-\x1F\x7F]/g, '');
+
             // Hapus simbol dekoratif (Emoji, Bintang, Underscore, Kurung Siku, Sama Dengan, dll)
             str = str.replace(/[✅√💰‼️*=_\[\]]/g, '');
             // Ganti titik koma dengan koma (karena ; dipakai sebagai pemisah kolom)
