@@ -23,6 +23,12 @@
         <!-- Header Khusus Cetak -->
         <div class="printable-header d-none">
             <img src="assets/logo.png" alt="Logo Toko" style="max-width: 300px; height: auto; margin-bottom: 15px;">
+            <div class="mb-4">
+                <p class="mb-0 fw-bold">Jl. Medokan Sawah Timur Gg. 1A No. 10 Kav. 22A</p>
+                <p class="mb-0">Phone: (+62) 899 4335 111</p>
+                <p class="mb-0">E-Mail: dokterpc@servicekomputersurabaya.id</p>
+                <p class="mb-0">Web: https://servicekomputersurabaya.id</p>
+            </div>
             <h2>📄 Brosur Daftar Laptop Ready Stock</h2>
             <p>Kualitas Terjamin • Bergaransi • Siap Pakai</p>
             <hr>
@@ -126,8 +132,32 @@
                             <button class="btn btn-outline-secondary filter-btn" data-filter="inactive">Non-Aktif</button>
                             <button class="btn btn-danger ms-auto" onclick="window.print()">🖨️ Export PDF / Cetak</button>
                         </div>
-                        <div class="mb-3 no-print">
-                            <input type="text" id="searchInput" class="form-control" placeholder="Cari laptop (Brand, Model, Spesifikasi)...">
+                        
+                        <!-- Filter & Sort Section -->
+                        <div class="card bg-light mb-3 no-print">
+                            <div class="card-body p-2">
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-md-3">
+                                        <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="🔍 Cari Brand/Model...">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <input type="number" id="minPrice" class="form-control form-control-sm" placeholder="Min Harga (Rp)">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <input type="number" id="maxPrice" class="form-control form-control-sm" placeholder="Max Harga (Rp)">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select id="sortBy" class="form-select form-select-sm">
+                                            <option value="newest">📅 Urut: Terbaru</option>
+                                            <option value="price_asc">💰 Harga: Rendah ke Tinggi</option>
+                                            <option value="price_desc">💎 Harga: Tinggi ke Rendah</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button id="btnResetFilter" class="btn btn-secondary btn-sm w-100">Reset</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-bordered table-hover align-middle" id="adminTable">
@@ -171,11 +201,16 @@
         let currentFilter = 'all'; // Status filter saat ini
 
         // Fungsi Render Tabel
-        const renderTable = (keyword = '') => {
+        const renderTable = () => {
+            const keyword = document.getElementById('searchInput').value;
+            const minPrice = Number(document.getElementById('minPrice').value) || 0;
+            const maxPrice = Number(document.getElementById('maxPrice').value) || Infinity;
+            const sortOption = document.getElementById('sortBy').value;
+
             const tbody = document.querySelector('#adminTable tbody');
             tbody.innerHTML = '';
 
-            const filtered = allLaptopsList.filter(item => {
+            let filtered = allLaptopsList.filter(item => {
                 // Filter Keyword
                 const searchStr = (item.brand + ' ' + item.model + ' ' + item.processor + ' ' + item.features).toLowerCase();
                 const matchKeyword = searchStr.includes(keyword.toLowerCase());
@@ -188,7 +223,20 @@
                     matchStatus = itemStatus === currentFilter;
                 }
 
-                return matchKeyword && matchStatus;
+                // Filter Price
+                const matchPrice = item.price >= minPrice && item.price <= maxPrice;
+
+                return matchKeyword && matchStatus && matchPrice;
+            });
+
+            // Sorting
+            filtered.sort((a, b) => {
+                if (sortOption === 'price_asc') {
+                    return a.price - b.price;
+                } else if (sortOption === 'price_desc') {
+                    return b.price - a.price;
+                }
+                return 0; // Default (Newest / Order from DB)
             });
 
             filtered.forEach((item) => {
@@ -248,13 +296,21 @@
             document.querySelector('button[data-filter="inactive"]').innerText = `Non-Aktif (${inactiveCount})`;
 
             // Render ulang dengan keyword yang ada di input (jika ada)
-            const searchVal = document.getElementById('searchInput').value;
-            renderTable(searchVal);
+            renderTable();
         });
 
         // Event Listener Search Input
-        document.getElementById('searchInput').addEventListener('keyup', (e) => {
-            renderTable(e.target.value);
+        document.getElementById('searchInput').addEventListener('keyup', renderTable);
+        document.getElementById('minPrice').addEventListener('input', renderTable);
+        document.getElementById('maxPrice').addEventListener('input', renderTable);
+        document.getElementById('sortBy').addEventListener('change', renderTable);
+        
+        document.getElementById('btnResetFilter').addEventListener('click', () => {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('minPrice').value = '';
+            document.getElementById('maxPrice').value = '';
+            document.getElementById('sortBy').value = 'newest';
+            renderTable();
         });
 
         // Event Listener Filter Buttons
@@ -266,7 +322,7 @@
                 e.target.classList.add('active', 'btn-dark');
                 
                 currentFilter = e.target.dataset.filter;
-                renderTable(document.getElementById('searchInput').value);
+                renderTable();
             });
         });
 
