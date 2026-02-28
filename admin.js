@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCvwo1qhS9ugnweRccAP0Wgvk1MQ2XBdXg",
@@ -13,6 +14,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 // State untuk menyimpan data lokal agar mudah diambil saat Edit
 const laptopsData = {};
@@ -554,4 +556,31 @@ document.getElementById('btnDeleteAll').addEventListener('click', async () => {
             btn.innerHTML = originalText;
         }
     }
+});
+
+// --- FITUR LOGIN FIREBASE ---
+const loginOverlay = document.getElementById('loginOverlay');
+const loginForm = document.getElementById('loginForm');
+
+// Cek Status Login Realtime
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        loginOverlay.style.display = 'none';
+    } else {
+        loginOverlay.style.display = 'flex';
+    }
+});
+
+loginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const pass = document.getElementById('password').value;
+
+    signInWithEmailAndPassword(auth, email, pass)
+        .then(() => showToast('Login Berhasil!', 'success'))
+        .catch((error) => showToast('Login Gagal: ' + error.message, 'error'));
+});
+
+document.getElementById('btnLogout').addEventListener('click', () => {
+    signOut(auth).then(() => showToast('Logout Berhasil', 'success'));
 });

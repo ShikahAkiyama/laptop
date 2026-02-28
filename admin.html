@@ -9,7 +9,32 @@
     <link rel="stylesheet" href="admin.css">
 </head>
 <body class="bg-light">
+    <!-- Login Overlay -->
+    <div id="loginOverlay">
+        <div class="card shadow-lg border-0 rounded-4" style="width: 100%; max-width: 400px;">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <img src="assets/logo.png" alt="Logo" height="50" class="mb-3">
+                    <h4 class="fw-bold">Admin Login</h4>
+                    <p class="text-muted small">Silakan login untuk mengelola data.</p>
+                </div>
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <input type="email" id="email" class="form-control form-control-lg" placeholder="Email Address" required>
+                    </div>
+                    <div class="mb-4">
+                        <input type="password" id="password" class="form-control form-control-lg" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill">Masuk</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="container mt-5">
+        <div class="d-flex justify-content-end mb-3 no-print">
+            <button id="btnLogout" class="btn btn-danger btn-sm">Logout</button>
+        </div>
         <!-- Header Khusus Cetak -->
         <div class="printable-header d-none">
             <img src="assets/logo.png" alt="Logo Toko" style="max-width: 300px; height: auto; margin-bottom: 15px;">
