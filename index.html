@@ -388,7 +388,25 @@
     // Load Data dari Firebase
     async function loadLaptops() {
         // Tampilkan loading di tabel utama
-        document.getElementById('lenovoTableBody').innerHTML = '<tr><td colspan="6" class="text-center py-3">Sedang memuat data terbaru...</td></tr>';
+        const loadingSpinnerTable = `
+            <tr>
+                <td colspan="6" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Sedang memuat data terbaru...</p>
+                </td>
+            </tr>`;
+        const loadingSpinnerDiv = `
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>`;
+
+        document.getElementById('lenovoTableBody').innerHTML = loadingSpinnerTable;
+        document.getElementById('dellContainer').innerHTML = loadingSpinnerDiv;
+        document.getElementById('hpContainer').innerHTML = loadingSpinnerDiv;
 
         const q = query(collection(db, "laptops"), orderBy("price", "asc"));
         const querySnapshot = await getDocs(q);
@@ -538,32 +556,8 @@
         }
     };
 
-    window.updateQty = (index, value) => {
-        let newQty = parseInt(value);
-        if (isNaN(newQty) || newQty < 1) newQty = 1;
-        cart[index].qty = newQty;
-        localStorage.setItem('shoppingCart', JSON.stringify(cart));
-        updateCartCount();
-        window.openCart(); // Refresh untuk update subtotal/total
-    };
-
-    window.clearCart = () => {
-        if (confirm('Yakin ingin mengosongkan keranjang?')) {
-            cart = [];
-            localStorage.setItem('shoppingCart', JSON.stringify(cart));
-            updateCartCount();
-            window.openCart();
-        }
-    };
-
-    window.removeFromCart = (index) => {
-        cart.splice(index, 1);
-        localStorage.setItem('shoppingCart', JSON.stringify(cart));
-        updateCartCount();
-        window.openCart(); // Render ulang modal keranjang
-    };
-
-    window.openCart = () => {
+    // Fungsi Render UI Keranjang (Tanpa manipulasi Modal)
+    const renderCartUI = () => {
         const container = document.getElementById('cartItemsContainer');
         container.innerHTML = '';
         let total = 0;
@@ -610,7 +604,50 @@
         }
 
         document.getElementById('cartTotal').innerText = formatRupiah(total);
-        const cartModal = new bootstrap.Modal(document.getElementById('cartModal'));
+    };
+
+    window.updateQty = (index, value) => {
+        let newQty = parseInt(value);
+        if (isNaN(newQty) || newQty < 1) newQty = 1;
+        cart[index].qty = newQty;
+        localStorage.setItem('shoppingCart', JSON.stringify(cart));
+        updateCartCount();
+        renderCartUI(); // Hanya update tampilan, jangan panggil openCart()
+    };
+
+    window.clearCart = () => {
+        if (confirm('Yakin ingin mengosongkan keranjang?')) {
+            cart = [];
+            localStorage.setItem('shoppingCart', JSON.stringify(cart));
+            updateCartCount();
+            renderCartUI(); // Hanya update tampilan
+            
+            // Tutup modal otomatis
+            const modalEl = document.getElementById('cartModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+        }
+    };
+
+    window.removeFromCart = (index) => {
+        cart.splice(index, 1);
+        localStorage.setItem('shoppingCart', JSON.stringify(cart));
+        updateCartCount();
+        renderCartUI(); // Hanya update tampilan
+
+        // Tutup modal jika kosong
+        if (cart.length === 0) {
+            const modalEl = document.getElementById('cartModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+        }
+    };
+
+    window.openCart = () => {
+        renderCartUI();
+        // Gunakan getOrCreateInstance agar instance modal tidak menumpuk (penyebab layar stuck)
+        const modalEl = document.getElementById('cartModal');
+        const cartModal = bootstrap.Modal.getOrCreateInstance(modalEl);
         cartModal.show();
     };
 
