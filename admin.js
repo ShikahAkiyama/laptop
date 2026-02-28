@@ -559,28 +559,17 @@ document.getElementById('btnDeleteAll').addEventListener('click', async () => {
 });
 
 // --- FITUR LOGIN FIREBASE ---
-const loginOverlay = document.getElementById('loginOverlay');
-const loginForm = document.getElementById('loginForm');
 
 // Cek Status Login Realtime
 onAuthStateChanged(auth, (user) => {
-    if (user) {
-        loginOverlay.style.display = 'none';
-    } else {
-        loginOverlay.style.display = 'flex';
+    if (!user) {
+        // Jika belum login, redirect ke halaman login
+        window.location.href = 'login.html';
     }
 });
 
-loginForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const pass = document.getElementById('password').value;
-
-    signInWithEmailAndPassword(auth, email, pass)
-        .then(() => showToast('Login Berhasil!', 'success'))
-        .catch((error) => showToast('Login Gagal: ' + error.message, 'error'));
-});
-
 document.getElementById('btnLogout').addEventListener('click', () => {
-    signOut(auth).then(() => showToast('Logout Berhasil', 'success'));
+    signOut(auth).then(() => {
+        window.location.href = 'login.html';
+    });
 });

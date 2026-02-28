@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light d-flex align-items-center justify-content-center vh-100">
+    <div class="card shadow-lg border-0 rounded-4" style="width: 100%; max-width: 400px;">
+        <div class="card-body p-5">
+            <div class="text-center mb-4">
+                <img src="assets/logo.png" alt="Logo" height="50" class="mb-3">
+                <h4 class="fw-bold">Admin Login</h4>
+                <p class="text-muted small">Silakan login untuk mengelola data.</p>
+            </div>
+            <form id="loginForm">
+                <div class="mb-3">
+                    <input type="email" id="email" class="form-control form-control-lg" placeholder="Email Address" required>
+                </div>
+                <div class="mb-4">
+                    <input type="password" id="password" class="form-control form-control-lg" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill">Masuk</button>
+                <div id="errorMessage" class="text-danger text-center mt-3 small"></div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCvwo1qhS9ugnweRccAP0Wgvk1MQ2XBdXg",
+            authDomain: "laptop-e718c.firebaseapp.com",
+            projectId: "laptop-e718c",
+            storageBucket: "laptop-e718c.firebasestorage.app",
+            messagingSenderId: "21040544479",
+            appId: "1:21040544479:web:67549dc570d07f3544076a",
+            measurementId: "G-SP2R77RD68"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Cek jika sudah login, redirect ke admin
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.location.href = 'admin.html';
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            const btn = e.target.querySelector('button');
+            const errorMsg = document.getElementById('errorMessage');
+
+            btn.disabled = true;
+            btn.innerText = 'Memuat...';
+            errorMsg.innerText = '';
+
+            signInWithEmailAndPassword(auth, email, pass)
+                .then(() => {
+                    // Redirect ditangani oleh onAuthStateChanged
+                })
+                .catch((error) => {
+                    btn.disabled = false;
+                    btn.innerText = 'Masuk';
+                    errorMsg.innerText = 'Login Gagal: ' + error.message;
+                });
+        });
+    </script>
+</body>
+</html>
