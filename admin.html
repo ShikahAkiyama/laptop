@@ -22,6 +22,9 @@
                                     <option value="Lenovo">Lenovo ThinkPad</option>
                                     <option value="Dell">Dell Latitude</option>
                                     <option value="HP">HP (ProBook/EliteBook)</option>
+                                    <option value="Apple">Apple MacBook</option>
+                                    <option value="Asus">Asus Laptop</option>
+                                    <option value="Acer">Acer Laptop</option>
                                 </select>
                             </div>
                             <div class="mb-3">
@@ -60,6 +63,22 @@
                             </div>
                             <button type="submit" class="btn btn-success w-100">Simpan Data ke Database</button>
                         </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bagian Upload CSV -->
+            <div class="col-md-8 mt-4 mb-5">
+                <div class="card shadow">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0">Upload Data via CSV (Massal)</h4>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">Format CSV: brand,model,processor,ram,storage,features,price,stock</p>
+                        <div class="mb-3">
+                            <input class="form-control" type="file" id="csvFile" accept=".csv">
+                        </div>
+                        <button id="btnUploadCsv" class="btn btn-outline-success w-100">Upload CSV</button>
                     </div>
                 </div>
             </div>
@@ -110,6 +129,58 @@
                 btn.disabled = false;
                 btn.innerText = 'Simpan Data ke Database';
             }
+        });
+
+        // Logic Upload CSV
+        document.getElementById('btnUploadCsv').addEventListener('click', async () => {
+            const fileInput = document.getElementById('csvFile');
+            const file = fileInput.files[0];
+            const btn = document.getElementById('btnUploadCsv');
+
+            if (!file) {
+                alert('Pilih file CSV terlebih dahulu!');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = 'Sedang Memproses...';
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const text = e.target.result;
+                const rows = text.split('\n').slice(1); // Skip header
+                let successCount = 0;
+
+                for (let row of rows) {
+                    if (!row.trim()) continue; // Skip baris kosong
+                    
+                    // Split CSV (asumsi sederhana pemisah koma)
+                    const cols = row.split(',');
+                    if (cols.length < 8) continue;
+
+                    try {
+                        await addDoc(collection(db, "laptops"), {
+                            brand: cols[0].trim(),
+                            model: cols[1].trim(),
+                            processor: cols[2].trim(),
+                            ram: cols[3].trim(),
+                            storage: cols[4].trim(),
+                            features: cols[5].trim(),
+                            price: Number(cols[6].trim()),
+                            stock: Number(cols[7].trim()),
+                            createdAt: new Date()
+                        });
+                        successCount++;
+                    } catch (err) {
+                        console.error("Gagal upload baris:", row, err);
+                    }
+                }
+                alert(`Berhasil mengupload ${successCount} data laptop!`);
+                btn.disabled = false;
+                btn.innerText = 'Upload CSV';
+                fileInput.value = ''; // Reset input
+            };
+            reader.readAsText(file);
         });
     </script>
 </body>
