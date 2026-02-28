@@ -90,7 +90,10 @@
         <div class="col-md-5">
             <div class="input-group shadow-sm">
                 <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Cari laptop (Ex: ThinkPad, Core i5)...">
+                <input type="text" id="searchInput" class="form-control border-start-0 border-end-0" placeholder="Cari laptop (Ex: ThinkPad, Core i5)...">
+                <button class="btn bg-white border border-start-0 text-muted" type="button" id="clearSearchBtn" style="display: none;">
+                    <i class="bi bi-x-lg"></i>
+                </button>
             </div>
         </div>
         <div class="col-md-2">
@@ -525,7 +528,20 @@
     };
 
     // Event Listeners
-    document.getElementById('searchInput').addEventListener('keyup', applyFilters);
+    const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+    searchInput.addEventListener('keyup', () => {
+        applyFilters();
+        clearSearchBtn.style.display = searchInput.value ? 'block' : 'none';
+    });
+    clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        clearSearchBtn.style.display = 'none';
+        applyFilters();
+        searchInput.focus();
+    });
+
     document.getElementById('minPrice').addEventListener('input', applyFilters);
     document.getElementById('maxPrice').addEventListener('input', applyFilters);
     document.getElementById('sortBy').addEventListener('change', applyFilters);
