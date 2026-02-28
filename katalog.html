@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog Laptop Ready Stock</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f7f6; font-family: 'Inter', sans-serif; }
+        .hero-section { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 60px 0; margin-bottom: 40px; border-bottom: 5px solid #ffc107; }
+        .brand-header { background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 25px; border-left: 5px solid #0d6efd; }
+        .table-container { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 50px; }
+        .table thead { background-color: #0d6efd; color: white; }
+        .price-text { font-weight: bold; color: #d63031; white-space: nowrap; }
+        .stock-tag { font-size: 0.8rem; font-weight: 600; }
+        .card { transition: all 0.3s; border: none; border-radius: 12px; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .spec-label { font-size: 0.8rem; color: #636e72; margin-bottom: 0; }
+        .wa-button { position: fixed; bottom: 20px; right: 20px; z-index: 1000; background: #25d366; color: white; border-radius: 50px; padding: 10px 20px; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .price-text:hover { background-color: #fff3cd; cursor: text; border-radius: 4px; }
+        th { cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<header class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-5 fw-bold">PROMO LAPTOP SECOND READY STOCK</h1>
+        <p class="lead">Kondisi Terjamin • SSD Anti Lemot • Siap Pakai</p>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="brand-header">
+        <h2 class="mb-0">✅ LENOVO THINKPAD SERIES</h2>
+    </div>
+
+    <div class="table-container text-nowrap table-responsive">
+        <table class="table table-hover align-middle mb-0" id="laptopTable">
+            <thead>
+                <tr>
+                    <th onclick="sortTable(0)">Model Laptop ⇅</th>
+                    <th onclick="sortTable(1)">Processor ⇅</th>
+                    <th onclick="sortTable(2)">RAM/SSD ⇅</th>
+                    <th onclick="sortTable(3)">Layar & Fitur ⇅</th>
+                    <th onclick="sortTable(4)">Harga ⇅</th>
+                    <th onclick="sortTable(5)">Stok ⇅</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><b>ThinkPad 13 Gen 2</b></td>
+                    <td>i3-7100U (Gen 7)</td>
+                    <td>8GB / 256GB</td>
+                    <td>13.3" (180°)</td>
+                    <td class="price-text">Rp 2.350.000</td>
+                    <td><span class="badge bg-primary stock-tag">40 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad L460</b></td>
+                    <td>i3-6100U</td>
+                    <td>8GB / 256GB</td>
+                    <td>14" (180°)</td>
+                    <td class="price-text">Rp 2.350.000</td>
+                    <td><span class="badge bg-primary stock-tag">29 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad X260 Ci5</b></td>
+                    <td>i5 Gen 6</td>
+                    <td>8GB / 128GB</td>
+                    <td>12.5" (180°)</td>
+                    <td class="price-text">Rp 2.650.000</td>
+                    <td><span class="badge bg-danger stock-tag">2 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad X260 Ci7</b></td>
+                    <td>i7 Gen 6</td>
+                    <td>8GB / 256GB</td>
+                    <td>12.5" (180°)</td>
+                    <td class="price-text">Rp 3.050.000</td>
+                    <td><span class="badge bg-danger stock-tag">1 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad X280</b></td>
+                    <td>i5 Gen 8</td>
+                    <td>8GB / 256GB</td>
+                    <td>12.5" (180°)</td>
+                    <td class="price-text">Rp 2.850.000</td>
+                    <td><span class="badge bg-primary stock-tag">8 Unit</span></td>
+                </tr>
+                <tr class="table-info">
+                    <td><b>X1 Carbon 6th Gen</b></td>
+                    <td>i5-8250U Gen 8</td>
+                    <td>8GB / 256GB</td>
+                    <td>14" FHD Backlit Slim</td>
+                    <td class="price-text">Rp 3.800.000</td>
+                    <td><span class="badge bg-primary stock-tag">16 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T470S Ci7</b></td>
+                    <td>i7 Gen 6</td>
+                    <td>8GB / 256GB</td>
+                    <td>14" (180°)</td>
+                    <td class="price-text">Rp 3.250.000</td>
+                    <td><span class="badge bg-primary stock-tag">7 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T470 Ci7</b></td>
+                    <td>i7 Gen 7</td>
+                    <td>8GB / 256GB</td>
+                    <td>14" (180°)</td>
+                    <td class="price-text">Rp 3.450.000</td>
+                    <td><span class="badge bg-danger stock-tag">2 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T440P</b></td>
+                    <td>i5 Gen 4</td>
+                    <td>8GB / 128GB</td>
+                    <td>14" (180°)</td>
+                    <td class="price-text">Rp 2.350.000</td>
+                    <td><span class="badge bg-primary stock-tag">5 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T440P</b></td>
+                    <td>i5 Gen 4</td>
+                    <td>8GB / 180GB</td>
+                    <td>14" (180°)</td>
+                    <td class="price-text">Rp 2.450.000</td>
+                    <td><span class="badge bg-danger stock-tag">3 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T450</b></td>
+                    <td>i5 Gen 5</td>
+                    <td>8GB / 128GB</td>
+                    <td>14" (180°)</td>
+                    <td class="price-text">Rp 2.650.000</td>
+                    <td><span class="badge bg-primary stock-tag">9 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T450</b></td>
+                    <td>i5 Gen 5</td>
+                    <td>8GB / 180GB</td>
+                    <td>14" (180°)</td>
+                    <td class="price-text">Rp 2.750.000</td>
+                    <td><span class="badge bg-primary stock-tag">5 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T560</b></td>
+                    <td>i5 Gen 6</td>
+                    <td>8GB / 128GB</td>
+                    <td>15.6" NumericPad</td>
+                    <td class="price-text">Rp 2.850.000</td>
+                    <td><span class="badge bg-primary stock-tag">5 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T570</b></td>
+                    <td>i5-6200U Gen 6</td>
+                    <td>8GB / 256GB</td>
+                    <td>15.6" NumericPad</td>
+                    <td class="price-text">Rp 2.850.000</td>
+                    <td><span class="badge bg-danger stock-tag">1 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T480</b></td>
+                    <td>i5 Gen 8</td>
+                    <td>16GB / 256GB</td>
+                    <td>14" (180°)</td>
+                    <td class="price-text">Rp 3.550.000</td>
+                    <td><span class="badge bg-danger stock-tag">1 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T480</b></td>
+                    <td>i5 Gen 8</td>
+                    <td>8GB / 256GB</td>
+                    <td>14" (180°)</td>
+                    <td class="price-text">Rp 3.250.000</td>
+                    <td><span class="badge bg-primary stock-tag">9 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T480 Touch</b></td>
+                    <td>i5 Gen 8</td>
+                    <td>8GB / 512GB</td>
+                    <td>14" Touchscreen</td>
+                    <td class="price-text">Rp 3.550.000</td>
+                    <td><span class="badge bg-danger stock-tag">1 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T480 Gen 7</b></td>
+                    <td>i5 Gen 7</td>
+                    <td>8GB / 256GB</td>
+                    <td>14" (180°)</td>
+                    <td class="price-text">Rp 3.650.000</td>
+                    <td><span class="badge bg-danger stock-tag">1 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T480 Gen 7</b></td>
+                    <td>i5 Gen 7</td>
+                    <td>16GB / 256GB</td>
+                    <td>14" (180°)</td>
+                    <td class="price-text">Rp 3.350.000</td>
+                    <td><span class="badge bg-danger stock-tag">1 Unit</span></td>
+                </tr>
+                <tr class="table-warning">
+                    <td><b>ThinkPad T490</b></td>
+                    <td>i5 Gen 8</td>
+                    <td>8GB / 256GB</td>
+                    <td>14" FHD</td>
+                    <td class="price-text">Rp 3.250.000</td>
+                    <td><span class="badge bg-primary stock-tag">58 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T490</b></td>
+                    <td>i5 Gen 8</td>
+                    <td>16GB / 256GB</td>
+                    <td>14" FHD</td>
+                    <td class="price-text">Rp 3.500.000</td>
+                    <td><span class="badge bg-danger stock-tag">2 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T490</b></td>
+                    <td>i5 Gen 8</td>
+                    <td>16GB / 512GB</td>
+                    <td>14" (180°)</td>
+                    <td class="price-text">Rp 4.050.000</td>
+                    <td><span class="badge bg-danger stock-tag">2 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T490</b></td>
+                    <td>i7 Gen 8</td>
+                    <td>24GB / 256GB</td>
+                    <td>14" (180°)</td>
+                    <td class="price-text">Rp 3.350.000</td>
+                    <td><span class="badge bg-danger stock-tag">1 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T490S</b></td>
+                    <td>i7 Gen 8</td>
+                    <td>16GB / 256GB</td>
+                    <td>14" FHD</td>
+                    <td class="price-text">Rp 4.550.000</td>
+                    <td><span class="badge bg-danger stock-tag">2 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad L13 G1</b></td>
+                    <td>i5 Gen 10</td>
+                    <td>8GB / 256GB</td>
+                    <td>13.3" (180°)</td>
+                    <td class="price-text">Rp 3.650.000</td>
+                    <td><span class="badge bg-primary stock-tag">20 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad L13 G1</b></td>
+                    <td>i5 Gen 11</td>
+                    <td>16GB / 256GB</td>
+                    <td>13.3" (180°)</td>
+                    <td class="price-text">Rp 3.750.000</td>
+                    <td><span class="badge bg-danger stock-tag">1 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad L13 G1</b></td>
+                    <td>i5 Gen 11</td>
+                    <td>8GB / 256GB</td>
+                    <td>13.3" (180°)</td>
+                    <td class="price-text">Rp 4.200.000</td>
+                    <td><span class="badge bg-danger stock-tag">1 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T14S Gen 1</b></td>
+                    <td>i7-10610U Gen 10</td>
+                    <td>16GB / 512GB</td>
+                    <td>14" (180°)</td>
+                    <td class="price-text">Rp 4.850.000</td>
+                    <td><span class="badge bg-primary stock-tag">4 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T14 Gen 2 Touch</b></td>
+                    <td>i5 Gen 11</td>
+                    <td>16GB / 256GB</td>
+                    <td>14" Touchscreen</td>
+                    <td class="price-text">Rp 4.650.000</td>
+                    <td><span class="badge bg-danger stock-tag">3 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T14 Gen 2 Touch</b></td>
+                    <td>i7 Gen 11</td>
+                    <td>16GB / 256GB</td>
+                    <td>14" Touchscreen</td>
+                    <td class="price-text">Rp 5.850.000</td>
+                    <td><span class="badge bg-danger stock-tag">4 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T14 Gen 2 Touch</b></td>
+                    <td>i7 Gen 11</td>
+                    <td>16GB / 512GB</td>
+                    <td>14" Touchscreen</td>
+                    <td class="price-text">Rp 6.250.000</td>
+                    <td><span class="badge bg-danger stock-tag">2 Unit</span></td>
+                </tr>
+                <tr class="table-success">
+                    <td><b>ThinkPad L14 Gen 1</b></td>
+                    <td>i5 Gen 10</td>
+                    <td>8GB / 256GB</td>
+                    <td>14" (180°)</td>
+                    <td class="price-text">Rp 3.750.000</td>
+                    <td><span class="badge bg-primary stock-tag">12 Unit</span></td>
+                </tr>
+                <tr class="table-success">
+                    <td><b>ThinkPad L14 Gen 1</b></td>
+                    <td>Ryzen 5 Pro 4650U</td>
+                    <td>8GB / 256GB</td>
+                    <td>Radeon Graphics 2GB</td>
+                    <td class="price-text">Rp 4.250.000</td>
+                    <td><span class="badge bg-primary stock-tag">14 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad L14 Gen 2</b></td>
+                    <td>i5 Gen 11</td>
+                    <td>16GB / 512GB</td>
+                    <td>14" (180°)</td>
+                    <td class="price-text">Rp 4.950.000</td>
+                    <td><span class="badge bg-danger stock-tag">4 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad X13</b></td>
+                    <td>i5 Gen 10</td>
+                    <td>16GB / 256GB</td>
+                    <td>13.3" FHD</td>
+                    <td class="price-text">Rp 4.250.000</td>
+                    <td><span class="badge bg-danger stock-tag">2 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad X13 Gen 1</b></td>
+                    <td>i7-10510U Gen 10</td>
+                    <td>8GB / 256GB</td>
+                    <td>13.3" FHD</td>
+                    <td class="price-text">Rp 4.550.000</td>
+                    <td><span class="badge bg-primary stock-tag">12 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad X13 Gen 1</b></td>
+                    <td>i7-10510U Gen 10</td>
+                    <td>16GB / 512GB</td>
+                    <td>13.3" FHD</td>
+                    <td class="price-text">Rp 4.650.000</td>
+                    <td><span class="badge bg-danger stock-tag">1 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad X390 Slim</b></td>
+                    <td>i5 Gen 8</td>
+                    <td>16GB / 256GB</td>
+                    <td>13.3" (180°)</td>
+                    <td class="price-text">Rp 3.550.000</td>
+                    <td><span class="badge bg-primary stock-tag">25 Unit</span></td>
+                </tr>
+                <tr class="table-info">
+                    <td><b>L13 Yoga G2 Touch</b></td>
+                    <td>i5 Gen 11</td>
+                    <td>16GB / 256GB</td>
+                    <td>Flip 360° + Stylus</td>
+                    <td class="price-text">Rp 5.250.000</td>
+                    <td><span class="badge bg-primary stock-tag">14 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T495</b></td>
+                    <td>Ryzen 7 3700U</td>
+                    <td>8GB / 256GB</td>
+                    <td>14" FHD</td>
+                    <td class="price-text">Rp 4.150.000</td>
+                    <td><span class="badge bg-primary stock-tag">22 Unit</span></td>
+                </tr>
+                <tr>
+                    <td><b>ThinkPad T495S</b></td>
+                    <td>Ryzen 7 Pro 3700U</td>
+                    <td>16GB / 256GB</td>
+                    <td>14" FHD</td>
+                    <td class="price-text">Rp 4.650.000</td>
+                    <td><span class="badge bg-danger stock-tag">4 Unit</span></td>
+                </tr>
+                <tr class="table-info">
+                    <td><b>X13 Yoga Gen 2</b></td>
+                    <td>i7-1185G7 Gen 11</td>
+                    <td>32GB / 256GB</td>
+                    <td>Flip 360° + Stylus</td>
+                    <td class="price-text">Rp 9.050.000</td>
+                    <td><span class="badge bg-danger stock-tag">2 Unit</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="brand-header mt-5" style="border-left-color: #0076d6;">
+        <h2 class="mb-0">✅ LAPTOP DELL LATITUDE</h2>
+    </div>
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card h-100 p-3">
+                <h5>Dell Latitude 5300</h5>
+                <p class="spec-label">i5-8265U Gen 8 | 8GB | 256GB</p>
+                <p class="small">Layar 13.3" Frameless, Keyboard JP</p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <span class="price-text">Rp 3.050.000</span>
+                    <span class="badge bg-primary">16 Unit</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 p-3">
+                <h5>Dell Latitude 3420</h5>
+                <p class="spec-label">i5 Gen 11 | 8GB | 256GB</p>
+                <p class="small">Layar 14" FHD</p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <span class="price-text">Rp 4.350.000</span>
+                    <span class="badge bg-danger">3 Unit</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 p-3">
+                <h5>Dell Latitude 7320</h5>
+                <p class="spec-label">i5 Gen 11 | 8GB | 256GB</p>
+                <p class="small">Layar 13.3" FHD</p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <span class="price-text">Rp 4.250.000</span>
+                    <span class="badge bg-danger">5 Unit</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 p-3">
+                <h5>Dell Latitude 7320</h5>
+                <p class="spec-label">i5 Gen 11 | 16GB | 256GB</p>
+                <p class="small">Layar 13.3" FHD</p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <span class="price-text">Rp 4.550.000</span>
+                    <span class="badge bg-danger">1 Unit</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 p-3">
+                <h5>Dell Latitude 7410</h5>
+                <p class="spec-label">i5 Gen 10 | 16GB | 256GB</p>
+                <p class="small">Layar 14" FHD, Type-C, HDMI</p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <span class="price-text">Rp 3.850.000</span>
+                    <span class="badge bg-primary">25 Unit</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-primary p-3">
+                <h5>Dell Latitude 7430</h5>
+                <p class="spec-label">i7-1265U Gen 12 | 16GB | 512GB</p>
+                <p class="small">Layar 13.3" FHD</p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <span class="price-text">Rp 6.350.000</span>
+                    <span class="badge bg-danger">1 Unit</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="brand-header mt-5" style="border-left-color: #000;">
+        <h2 class="mb-0">✅ LAPTOP HP (PROBOOK & ELITEBOOK)</h2>
+    </div>
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card h-100 p-3">
+                <h5>HP ProBook 430 G3</h5>
+                <p class="spec-label">i5 Gen 6 | 8GB | 128GB</p>
+                <p class="small">Layar 13.3"</p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <span class="price-text">Rp 2.650.000</span>
+                    <span class="badge bg-danger">3 Unit</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 p-3">
+                <h5>HP ProBook 430 G3</h5>
+                <p class="spec-label">i5 Gen 6 | 8GB | 256GB</p>
+                <p class="small">Layar 13.3"</p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <span class="price-text">Rp 2.850.000</span>
+                    <span class="badge bg-primary">6 Unit</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 p-3 border-warning">
+                <span class="badge bg-warning text-dark mb-2 w-50">Best Stock</span>
+                <h5>HP ProBook 440 G7</h5>
+                <p class="spec-label">i5 Gen 10 | 8GB | 256GB</p>
+                <p class="small">Touchscreen 14", Slim Silver Elegant</p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <span class="price-text">Rp 3.950.000</span>
+                    <span class="badge bg-primary">90 Unit</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 p-3">
+                <h5>HP EliteBook 840 G5</h5>
+                <p class="spec-label">i5-7300U Gen 7 | 8GB | 256GB</p>
+                <p class="small">Layar 14" FHD</p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <span class="price-text">Rp 3.150.000</span>
+                    <span class="badge bg-primary">53 Unit</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 p-3">
+                <h5>HP EliteBook 830 G7</h5>
+                <p class="spec-label">i5-10210U | 8GB | 256GB</p>
+                <p class="small">Touchscreen 13.3", Body Full Aluminium</p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <span class="price-text">Rp 4.350.000</span>
+                    <span class="badge bg-primary">16 Unit</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 p-3">
+                <h5>HP EliteBook 840 G7</h5>
+                <p class="spec-label">i5-10210U Gen 10 | 8GB | 256GB</p>
+                <p class="small">Touchscreen 14" FHD</p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <span class="price-text">Rp 4.750.000</span>
+                    <span class="badge bg-primary">36 Unit</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 p-3">
+                <h5>HP EliteBook 850 G5</h5>
+                <p class="spec-label">i5 Gen 8 | 8GB | 128GB</p>
+                <p class="small">Layar 15.6" Numeric</p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <span class="price-text">Rp 3.050.000</span>
+                    <span class="badge bg-danger">1 Unit</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 p-3">
+                <h5>HP EliteBook 850 G5</h5>
+                <p class="spec-label">i5 Gen 8 | 8GB | 180GB</p>
+                <p class="small">Layar 15.6" Numeric</p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <span class="price-text">Rp 3.150.000</span>
+                    <span class="badge bg-danger">2 Unit</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 p-3">
+                <h5>HP EliteBook 850 G6</h5>
+                <p class="spec-label">i5 Gen 8 | 8GB | 128GB</p>
+                <p class="small">Touchscreen 15.6" Numeric</p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <span class="price-text">Rp 3.250.000</span>
+                    <span class="badge bg-danger">2 Unit</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 p-3">
+                <h5>HP EliteBook 630 G9</h5>
+                <p class="spec-label">i3-1215U Gen 12 | 8GB | 256GB</p>
+                <p class="small">Layar 13.3" FHD, Desain Modern</p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <span class="price-text">Rp 4.450.000</span>
+                    <span class="badge bg-primary">6 Unit</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 p-3">
+                <h5>HP EliteBook 845 G8</h5>
+                <p class="spec-label">Ryzen 5 Pro 5650U | 8GB | 256GB</p>
+                <p class="small">Layar 14" FHD, Aluminium</p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <span class="price-text">Rp 4.450.000</span>
+                    <span class="badge bg-primary">7 Unit</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 p-3 border-primary">
+                <h5>HP EliteBook 840 G8</h5>
+                <p class="spec-label">i5-1145G7 Gen 11 | 8GB | 256GB</p>
+                <p class="small">Touchscreen 14", Premium Luxury</p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <span class="price-text">Rp 4.850.000</span>
+                    <span class="badge bg-primary">18 Unit</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="bg-dark text-white text-center py-4 mt-5">
+    <p class="mb-0">Hubungi Kami untuk Pemesanan & Detail Lebih Lanjut</p>
+    <small>Stok dapat berubah sewaktu-waktu</small>
+</footer>
+
+<a href="https://wa.me/628123456789" class="wa-button">
+    💬 Chat WhatsApp
+</a>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function sortTable(n) {
+  var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+  table = document.getElementById("laptopTable");
+  switching = true;
+  dir = "asc";
+  while (switching) {
+    switching = false;
+    rows = table.rows;
+    for (i = 1; i < (rows.length - 1); i++) {
+      shouldSwitch = false;
+      x = rows[i].getElementsByTagName("TD")[n];
+      y = rows[i + 1].getElementsByTagName("TD")[n];
+      
+      let xContent = x.innerText || x.textContent;
+      let yContent = y.innerText || y.textContent;
+      
+      if (n === 4) { // Harga
+          xContent = parseInt(xContent.replace(/[^0-9]/g, ''));
+          yContent = parseInt(yContent.replace(/[^0-9]/g, ''));
+      } else if (n === 5) { // Stok
+          xContent = parseInt(xContent.replace(/[^0-9]/g, ''));
+          yContent = parseInt(yContent.replace(/[^0-9]/g, ''));
+      } else {
+          xContent = xContent.toLowerCase();
+          yContent = yContent.toLowerCase();
+      }
+
+      if (dir == "asc") {
+        if (xContent > yContent) {
+          shouldSwitch = true;
+          break;
+        }
+      } else if (dir == "desc") {
+        if (xContent < yContent) {
+          shouldSwitch = true;
+          break;
+        }
+      }
+    }
+    if (shouldSwitch) {
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+      switchcount ++;
+    } else {
+      if (switchcount == 0 && dir == "asc") {
+        dir = "desc";
+        switching = true;
+      }
+    }
+  }
+}
+
+// Script untuk Edit Harga Manual
+document.addEventListener("DOMContentLoaded", function() {
+    const priceCells = document.querySelectorAll(".price-text");
+    priceCells.forEach(cell => {
+        // Aktifkan mode edit
+        cell.setAttribute("contenteditable", "true");
+        cell.title = "Klik untuk ubah harga";
+
+        // Saat diklik (fokus), hilangkan format Rp agar mudah diedit angka saja
+        cell.addEventListener("focus", function() {
+            let val = this.innerText.replace(/[^0-9]/g, '');
+            this.innerText = val;
+        });
+
+        // Saat selesai edit (blur), format kembali ke Rupiah
+        cell.addEventListener("blur", function() {
+            let val = this.innerText.replace(/[^0-9]/g, '');
+            if(val) {
+                this.innerText = "Rp " + parseInt(val).toLocaleString('id-ID');
+            } else {
+                this.innerText = "Rp 0";
+            }
+        });
+
+        // Tekan Enter untuk simpan (blur)
+        cell.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                this.blur();
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>

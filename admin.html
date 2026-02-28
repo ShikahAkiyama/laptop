@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Input Laptop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">Input Data Laptop Baru</h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="laptopForm">
+                            <div class="mb-3">
+                                <label class="form-label">Brand / Kategori</label>
+                                <select class="form-select" id="brand" required>
+                                    <option value="Lenovo">Lenovo ThinkPad</option>
+                                    <option value="Dell">Dell Latitude</option>
+                                    <option value="HP">HP (ProBook/EliteBook)</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Model Laptop</label>
+                                <input type="text" class="form-control" id="model" placeholder="Contoh: ThinkPad T480" required>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Processor</label>
+                                    <input type="text" class="form-control" id="processor" placeholder="Contoh: i5 Gen 8" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">RAM</label>
+                                    <input type="text" class="form-control" id="ram" placeholder="Contoh: 8GB" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Storage (SSD/HDD)</label>
+                                    <input type="text" class="form-control" id="storage" placeholder="Contoh: 256GB SSD" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Layar & Fitur</label>
+                                    <input type="text" class="form-control" id="features" placeholder="Contoh: 14 inch FHD, Backlit" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Harga (Rp)</label>
+                                    <input type="number" class="form-control" id="price" placeholder="Tanpa titik/koma" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Stok</label>
+                                    <input type="number" class="form-control" id="stock" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">Simpan Data ke Database</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCvwo1qhS9ugnweRccAP0Wgvk1MQ2XBdXg",
+            authDomain: "laptop-e718c.firebaseapp.com",
+            projectId: "laptop-e718c",
+            storageBucket: "laptop-e718c.firebasestorage.app",
+            messagingSenderId: "21040544479",
+            appId: "1:21040544479:web:67549dc570d07f3544076a",
+            measurementId: "G-SP2R77RD68"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        document.getElementById('laptopForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.disabled = true;
+            btn.innerText = 'Menyimpan...';
+
+            try {
+                await addDoc(collection(db, "laptops"), {
+                    brand: document.getElementById('brand').value,
+                    model: document.getElementById('model').value,
+                    processor: document.getElementById('processor').value,
+                    ram: document.getElementById('ram').value,
+                    storage: document.getElementById('storage').value,
+                    features: document.getElementById('features').value,
+                    price: Number(document.getElementById('price').value),
+                    stock: Number(document.getElementById('stock').value),
+                    createdAt: new Date()
+                });
+                alert('Data berhasil disimpan!');
+                e.target.reset();
+            } catch (error) {
+                console.error("Error:", error);
+                alert('Gagal menyimpan: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Simpan Data ke Database';
+            }
+        });
+    </script>
+</body>
+</html>
