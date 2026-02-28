@@ -141,22 +141,8 @@
     <div class="brand-header">
         <h2 class="mb-0">✅ LENOVO THINKPAD SERIES</h2>
     </div>
-    <div class="table-container table-responsive">
-        <table class="table table-hover align-middle mb-0" id="laptopTable">
-            <thead>
-                <tr>
-                    <th>Model Laptop</th>
-                    <th>Processor</th>
-                    <th>RAM/SSD</th>
-                    <th>Layar & Fitur</th>
-                    <th>Harga</th>
-                    <th>Stok</th>
-                </tr>
-            </thead>
-            <tbody id="lenovoTableBody">
-                <!-- Data Lenovo akan masuk di sini via JS -->
-            </tbody>
-        </table>
+    <div class="row g-4 mb-5" id="lenovoContainer">
+        <!-- Data Lenovo akan masuk di sini via JS -->
     </div>
 
     <div class="brand-header mt-5" style="border-left-color: #0076d6;">
@@ -354,33 +340,6 @@
         return "Rp " + num.toLocaleString('id-ID');
     };
 
-    // Fungsi Render Baris Tabel (Khusus Lenovo)
-    const renderTableRow = (data) => {
-        const stockBadge = data.stock < 5 ? 'bg-danger' : 'bg-primary';
-        
-        let priceHtml = formatRupiah(data.price);
-        let discountBadge = '';
-
-        if (data.originalPrice && data.originalPrice > data.price) {
-            const discount = Math.round(((data.originalPrice - data.price) / data.originalPrice) * 100);
-            priceHtml = `<s class="text-muted small d-block" style="font-size: 0.8em;">${formatRupiah(data.originalPrice)}</s> ${formatRupiah(data.price)}`;
-            discountBadge = `<span class="badge bg-danger ms-1" style="font-size: 0.7em;">-${discount}%</span>`;
-        }
-
-        return `
-            <tr onclick="window.openDetail('${data.id}')">
-                <td><b>${data.model}</b></td>
-                <td>${data.processor}</td>
-                <td>${data.ram} / ${data.storage}</td>
-                <td>${data.features}</td>
-                <td class="price-text">
-                    ${priceHtml} ${discountBadge}
-                </td>
-                <td><span class="badge ${stockBadge} stock-tag">${data.stock} Unit</span></td>
-            </tr>
-        `;
-    };
-
     // Fungsi Render Card (Khusus Dell & HP)
     const renderCard = (data) => {
         const stockBadge = data.stock < 5 ? 'bg-danger' : 'bg-primary';
@@ -412,7 +371,7 @@
 
     // Fungsi Render Data ke HTML
     const renderLaptops = (laptops) => {
-        const lenovoContainer = document.getElementById('lenovoTableBody');
+        const lenovoContainer = document.getElementById('lenovoContainer');
         const dellContainer = document.getElementById('dellContainer');
         const hpContainer = document.getElementById('hpContainer');
 
@@ -424,7 +383,7 @@
         laptops.forEach(data => {
             const brand = data.brand.toLowerCase();
             if (brand.includes('lenovo')) {
-                lenovoContainer.innerHTML += renderTableRow(data);
+                lenovoContainer.innerHTML += renderCard(data);
             } else if (brand.includes('dell')) {
                 dellContainer.innerHTML += renderCard(data);
             } else if (brand.includes('hp')) {
@@ -433,23 +392,13 @@
         });
 
         // Pesan jika kosong
-        if (lenovoContainer.innerHTML === '') lenovoContainer.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">Tidak ada data yang cocok</td></tr>';
+        if (lenovoContainer.innerHTML === '') lenovoContainer.innerHTML = '<div class="col-12 text-center text-muted py-3">Tidak ada data yang cocok</div>';
         if (dellContainer.innerHTML === '') dellContainer.innerHTML = '<div class="col-12 text-center text-muted py-3">Tidak ada data yang cocok</div>';
         if (hpContainer.innerHTML === '') hpContainer.innerHTML = '<div class="col-12 text-center text-muted py-3">Tidak ada data yang cocok</div>';
     };
 
     // Load Data dari Firebase
     async function loadLaptops() {
-        // Tampilkan loading di tabel utama
-        const loadingSpinnerTable = `
-            <tr>
-                <td colspan="6" class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="mt-2 text-muted">Sedang memuat data terbaru...</p>
-                </td>
-            </tr>`;
         const loadingSpinnerDiv = `
             <div class="col-12 text-center py-5">
                 <div class="spinner-border text-primary" role="status">
@@ -457,7 +406,7 @@
                 </div>
             </div>`;
 
-        document.getElementById('lenovoTableBody').innerHTML = loadingSpinnerTable;
+        document.getElementById('lenovoContainer').innerHTML = loadingSpinnerDiv;
         document.getElementById('dellContainer').innerHTML = loadingSpinnerDiv;
         document.getElementById('hpContainer').innerHTML = loadingSpinnerDiv;
 
