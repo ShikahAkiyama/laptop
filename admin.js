@@ -358,6 +358,18 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
         // Deteksi delimiter (koma atau titik koma)
         const delimiter = dataRows[0].includes(';') ? ';' : ',';
         const updateDuplicates = document.getElementById('chkUpdateDuplicates').checked;
+
+        // Helper untuk membersihkan value CSV (Excel Format)
+        const cleanCSVValue = (val) => {
+            if (!val) return '';
+            let str = val.trim();
+            // Jika diawali dan diakhiri tanda petik, hapus petiknya
+            if (str.startsWith('"') && str.endsWith('"')) {
+                str = str.slice(1, -1);
+            }
+            // Unescape double quotes ("" menjadi ")
+            return str.replace(/""/g, '"');
+        };
         
         let successCount = 0;
         let duplicateCount = 0;
@@ -380,21 +392,26 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
                 // Parse Images (Kolom ke-10, index 9)
                 let images = [];
                 if (cols[9]) {
-                    images = cols[9].split('|').map(url => url.trim()).filter(url => url !== '');
+                    const imgRaw = cleanCSVValue(cols[9]);
+                    images = imgRaw.split('|').map(url => url.trim()).filter(url => url !== '');
                 }
                 
+                // Parse Misc (Gabungkan sisa kolom jika ada koma dalam teks)
                 let misc = '';
-                if (cols[10]) {
-                    misc = cols[10].trim();
+                if (cols.length > 10) {
+                    const miscRaw = cols.slice(10).join(delimiter);
+                    misc = cleanCSVValue(miscRaw);
+                } else if (cols[10]) {
+                    misc = cleanCSVValue(cols[10]);
                 }
 
                 const laptopData = {
-                    brand: cols[0].trim(),
-                    model: cols[1].trim(),
-                    processor: cols[2].trim(),
-                    ram: cols[3].trim(),
-                    storage: cols[4].trim(),
-                    features: cols[5].trim(),
+                    brand: cleanCSVValue(cols[0]),
+                    model: cleanCSVValue(cols[1]),
+                    processor: cleanCSVValue(cols[2]),
+                    ram: cleanCSVValue(cols[3]),
+                    storage: cleanCSVValue(cols[4]),
+                    features: cleanCSVValue(cols[5]),
                     price: Number(priceClean),
                     originalPrice: Number(originalPriceClean),
                     stock: Number(stockClean),
@@ -501,7 +518,8 @@ document.getElementById('btnDownloadCsv').addEventListener('click', () => {
     });
 
     // Trigger Download File
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    // Tambahkan BOM (\uFEFF) agar Excel membaca UTF-8 dengan benar (mengatasi karakter aneh seperti Â°)
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
