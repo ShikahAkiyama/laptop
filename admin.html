@@ -16,6 +16,7 @@
                     </div>
                     <div class="card-body">
                         <form id="laptopForm">
+                            <input type="hidden" id="docId">
                             <div class="mb-3">
                                 <label class="form-label">Brand / Kategori</label>
                                 <select class="form-select" id="brand" required>
@@ -62,6 +63,7 @@
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-success w-100">Simpan Data ke Database</button>
+                            <button type="button" id="btnCancel" class="btn btn-secondary w-100 mt-2 d-none">Batal Edit</button>
                         </form>
                     </div>
                 </div>
@@ -83,12 +85,36 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Bagian Tabel Daftar Laptop (Edit/Hapus) -->
+            <div class="col-md-12 mt-2 mb-5">
+                <div class="card shadow">
+                    <div class="card-header bg-dark text-white">
+                        <h4 class="mb-0">Daftar Laptop (Edit / Hapus)</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover align-middle" id="adminTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Brand & Model</th>
+                                        <th>Spesifikasi Utama</th>
+                                        <th>Harga & Stok</th>
+                                        <th style="width: 150px;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCvwo1qhS9ugnweRccAP0Wgvk1MQ2XBdXg",
@@ -103,14 +129,108 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // State untuk menyimpan data lokal agar mudah diambil saat Edit
+        const laptopsData = {};
+
+        // Listener Realtime: Otomatis update tabel jika ada perubahan di database
+        const q = query(collection(db, "laptops"), orderBy("createdAt", "desc"));
+        onSnapshot(q, (snapshot) => {
+            const tbody = document.querySelector('#adminTable tbody');
+            tbody.innerHTML = '';
+            
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                laptopsData[docSnap.id] = data; // Simpan data ke state lokal
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <span class="badge bg-primary mb-1">${data.brand}</span><br>
+                        <b>${data.model}</b>
+                    </td>
+                    <td class="small">
+                        ${data.processor}<br>
+                        ${data.ram} | ${data.storage}
+                    </td>
+                    <td>
+                        Rp ${data.price.toLocaleString('id-ID')}<br>
+                        <span class="badge ${data.stock < 5 ? 'bg-danger' : 'bg-success'}">Stok: ${data.stock}</span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-warning btn-edit mb-1 w-100" data-id="${docSnap.id}">Edit</button>
+                        <button class="btn btn-sm btn-danger btn-delete w-100" data-id="${docSnap.id}">Hapus</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Pasang Event Listener untuk tombol Edit & Hapus
+            document.querySelectorAll('.btn-edit').forEach(btn => {
+                btn.addEventListener('click', () => editLaptop(btn.dataset.id));
+            });
+            document.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', () => deleteLaptop(btn.dataset.id));
+            });
+        });
+
+        // Fungsi Edit: Mengisi form dengan data yang dipilih
+        const editLaptop = (id) => {
+            const data = laptopsData[id];
+            if (!data) return;
+
+            document.getElementById('docId').value = id;
+            document.getElementById('brand').value = data.brand;
+            document.getElementById('model').value = data.model;
+            document.getElementById('processor').value = data.processor;
+            document.getElementById('ram').value = data.ram;
+            document.getElementById('storage').value = data.storage;
+            document.getElementById('features').value = data.features;
+            document.getElementById('price').value = data.price;
+            document.getElementById('stock').value = data.stock;
+
+            // Ubah tampilan tombol
+            const btnSubmit = document.querySelector('#laptopForm button[type="submit"]');
+            btnSubmit.innerText = 'Update Data';
+            btnSubmit.classList.replace('btn-success', 'btn-warning');
+            
+            document.getElementById('btnCancel').classList.remove('d-none');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // Fungsi Hapus
+        const deleteLaptop = async (id) => {
+            if (confirm('Apakah Anda yakin ingin menghapus data laptop ini?')) {
+                try {
+                    await deleteDoc(doc(db, "laptops", id));
+                } catch (error) {
+                    alert('Gagal menghapus: ' + error.message);
+                }
+            }
+        };
+
+        // Fungsi Reset Form (Batal Edit / Selesai Simpan)
+        const resetForm = () => {
+            document.getElementById('laptopForm').reset();
+            document.getElementById('docId').value = '';
+            const btnSubmit = document.querySelector('#laptopForm button[type="submit"]');
+            btnSubmit.innerText = 'Simpan Data ke Database';
+            btnSubmit.classList.replace('btn-warning', 'btn-success');
+            document.getElementById('btnCancel').classList.add('d-none');
+        };
+
+        document.getElementById('btnCancel').addEventListener('click', resetForm);
+
         document.getElementById('laptopForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button');
+            const id = document.getElementById('docId').value;
+            const originalText = btn.innerText;
+            
             btn.disabled = true;
-            btn.innerText = 'Menyimpan...';
+            btn.innerText = id ? 'Mengupdate...' : 'Menyimpan...';
 
             try {
-                await addDoc(collection(db, "laptops"), {
+                const laptopData = {
                     brand: document.getElementById('brand').value,
                     model: document.getElementById('model').value,
                     processor: document.getElementById('processor').value,
@@ -119,16 +239,28 @@
                     features: document.getElementById('features').value,
                     price: Number(document.getElementById('price').value),
                     stock: Number(document.getElementById('stock').value),
-                    createdAt: new Date()
-                });
-                alert('Data berhasil disimpan!');
-                e.target.reset();
+                    updatedAt: new Date()
+                };
+
+                if (id) {
+                    // Mode Update
+                    await updateDoc(doc(db, "laptops", id), laptopData);
+                    alert('Data berhasil diupdate!');
+                    resetForm();
+                } else {
+                    // Mode Tambah Baru
+                    laptopData.createdAt = new Date();
+                    await addDoc(collection(db, "laptops"), laptopData);
+                    alert('Data berhasil disimpan!');
+                    e.target.reset();
+                    btn.innerText = 'Simpan Data ke Database';
+                }
             } catch (error) {
                 console.error("Error:", error);
                 alert('Gagal menyimpan: ' + error.message);
+                btn.innerText = originalText;
             } finally {
                 btn.disabled = false;
-                btn.innerText = 'Simpan Data ke Database';
             }
         });
 
