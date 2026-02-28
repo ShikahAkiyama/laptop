@@ -25,6 +25,11 @@
         tbody tr { cursor: pointer; transition: background-color 0.2s; }
         .card { cursor: pointer; }
 
+        /* Navbar Auto-Hide Styles */
+        body { padding-top: 80px; }
+        .navbar { transition: transform 0.3s ease-in-out; }
+        .navbar-hidden { transform: translateY(-100%); }
+
         /* Dark Mode Styles */
         body.dark-mode { background-color: #121212; color: #e0e0e0; }
         body.dark-mode .navbar { background-color: #1e1e1e !important; border-bottom: 1px solid #333; }
@@ -47,7 +52,7 @@
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+<nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
     <div class="container">
         <a class="navbar-brand" href="#">
             <img src="assets/logo.png" alt="Logo" height="50">
@@ -214,19 +219,19 @@
                         <div class="row g-3 mb-4">
                             <div class="col-6">
                                 <small class="text-muted d-block text-uppercase" style="font-size: 0.75rem;">Processor</small>
-                                <strong id="modalProcessor" class="text-dark">-</strong>
+                                <strong id="modalProcessor">-</strong>
                             </div>
                             <div class="col-6">
                                 <small class="text-muted d-block text-uppercase" style="font-size: 0.75rem;">RAM / Storage</small>
-                                <strong id="modalRamStorage" class="text-dark">-</strong>
+                                <strong id="modalRamStorage">-</strong>
                             </div>
                             <div class="col-12">
                                 <small class="text-muted d-block text-uppercase" style="font-size: 0.75rem;">Layar & Fitur</small>
-                                <strong id="modalFeatures" class="text-dark">-</strong>
+                                <strong id="modalFeatures">-</strong>
                             </div>
                             <div class="col-12 d-none" id="modalMiscRow">
                                 <small class="text-muted d-block text-uppercase" style="font-size: 0.75rem;">Lain-lain</small>
-                                <strong id="modalMisc" class="text-dark">-</strong>
+                                <strong id="modalMisc">-</strong>
                             </div>
                         </div>
 
@@ -313,6 +318,20 @@
         icon.classList.replace('bi-sun-fill', 'bi-moon-fill');
         localStorage.setItem('darkMode', 'disabled');
     }
+
+    // Navbar Auto Hide/Show Logic
+    let lastScrollTop = 0;
+    const navbar = document.querySelector('.navbar');
+
+    window.addEventListener('scroll', function() {
+        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        if (scrollTop > lastScrollTop && scrollTop > 80) {
+            navbar.classList.add('navbar-hidden');
+        } else {
+            navbar.classList.remove('navbar-hidden');
+        }
+        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+    });
 </script>
 
 <script type="module">
