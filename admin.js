@@ -426,8 +426,19 @@ document.getElementById('btnDownloadCsv').addEventListener('click', () => {
     let csvContent = "brand;model;processor;ram;storage;features;price;stock;images\n";
 
     allLaptopsList.forEach(item => {
-        // Helper untuk membersihkan teks dari delimiter (;) dan new line agar CSV tidak rusak
-        const clean = (text) => String(text || '').replace(/;/g, ',').replace(/\n/g, ' ').trim();
+        // Helper untuk membersihkan teks
+        const clean = (text) => {
+            let str = String(text || '');
+            // Hapus simbol dekoratif (Emoji, Bintang, Underscore, Kurung Siku, Sama Dengan, dll)
+            str = str.replace(/[✅√💰‼️*=_\[\]]/g, '');
+            // Ganti titik koma dengan koma (karena ; dipakai sebagai pemisah kolom)
+            str = str.replace(/;/g, ',');
+            // Hapus baris baru dan tab
+            str = str.replace(/[\r\n\t]+/g, ' ');
+            // Hapus spasi berlebih
+            str = str.replace(/\s+/g, ' ');
+            return str.trim();
+        };
         
         const images = (item.images || []).join('|');
 
@@ -438,8 +449,8 @@ document.getElementById('btnDownloadCsv').addEventListener('click', () => {
             clean(item.ram),
             clean(item.storage),
             clean(item.features),
-            item.price,
-            item.stock,
+            item.price || 0,
+            item.stock || 0,
             images
         ].join(';');
         
