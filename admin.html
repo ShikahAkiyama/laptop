@@ -61,6 +61,13 @@
                                     <label class="form-label">Stok</label>
                                     <input type="number" class="form-control" id="stock" required>
                                 </div>
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label">Status Penjualan</label>
+                                    <select class="form-select" id="status">
+                                        <option value="active" selected>✅ Aktif (Tampil di Web)</option>
+                                        <option value="inactive">❌ Non-Aktif (Disembunyikan)</option>
+                                    </select>
+                                </div>
                             </div>
                             <button type="submit" class="btn btn-success w-100">Simpan Data ke Database</button>
                             <button type="button" id="btnCancel" class="btn btn-secondary w-100 mt-2 d-none">Batal Edit</button>
@@ -93,6 +100,14 @@
                         <h4 class="mb-0">Daftar Laptop (Edit / Hapus)</h4>
                     </div>
                     <div class="card-body">
+                        <div class="d-flex gap-2 mb-3">
+                            <button class="btn btn-outline-dark active filter-btn" data-filter="all">Semua</button>
+                            <button class="btn btn-outline-success filter-btn" data-filter="active">Aktif Only</button>
+                            <button class="btn btn-outline-secondary filter-btn" data-filter="inactive">Non-Aktif</button>
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Cari laptop (Brand, Model, Spesifikasi)...">
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-bordered table-hover align-middle" id="adminTable">
                                 <thead class="table-light">
@@ -131,45 +146,97 @@
 
         // State untuk menyimpan data lokal agar mudah diambil saat Edit
         const laptopsData = {};
+        let allLaptopsList = []; // Array untuk menyimpan data agar mudah difilter
+        let currentFilter = 'all'; // Status filter saat ini
 
-        // Listener Realtime: Otomatis update tabel jika ada perubahan di database
-        const q = query(collection(db, "laptops"), orderBy("createdAt", "desc"));
-        onSnapshot(q, (snapshot) => {
+        // Fungsi Render Tabel
+        const renderTable = (keyword = '') => {
             const tbody = document.querySelector('#adminTable tbody');
             tbody.innerHTML = '';
-            
-            snapshot.forEach((docSnap) => {
-                const data = docSnap.data();
-                laptopsData[docSnap.id] = data; // Simpan data ke state lokal
+
+            const filtered = allLaptopsList.filter(item => {
+                // Filter Keyword
+                const searchStr = (item.brand + ' ' + item.model + ' ' + item.processor + ' ' + item.features).toLowerCase();
+                const matchKeyword = searchStr.includes(keyword.toLowerCase());
+                
+                // Filter Status
+                let matchStatus = true;
+                if (currentFilter !== 'all') {
+                    // Jika item.status undefined (data lama), anggap active
+                    const itemStatus = item.status || 'active'; 
+                    matchStatus = itemStatus === currentFilter;
+                }
+
+                return matchKeyword && matchStatus;
+            });
+
+            filtered.forEach((item) => {
+                const statusBadge = (item.status === 'inactive') 
+                    ? '<span class="badge bg-secondary">Non-Aktif</span>' 
+                    : '<span class="badge bg-success">Aktif</span>';
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>
-                        <span class="badge bg-primary mb-1">${data.brand}</span><br>
-                        <b>${data.model}</b>
+                        <span class="badge bg-primary mb-1">${item.brand}</span><br>
+                        <b>${item.model}</b>
                     </td>
                     <td class="small">
-                        ${data.processor}<br>
-                        ${data.ram} | ${data.storage}
+                        ${item.processor}<br>
+                        ${item.ram} | ${item.storage}
                     </td>
                     <td>
-                        Rp ${data.price.toLocaleString('id-ID')}<br>
-                        <span class="badge ${data.stock < 5 ? 'bg-danger' : 'bg-success'}">Stok: ${data.stock}</span>
+                        Rp ${item.price.toLocaleString('id-ID')}<br>
+                        <span class="badge ${item.stock < 5 ? 'bg-danger' : 'bg-primary'} mb-1">Stok: ${item.stock}</span><br>
+                        ${statusBadge}
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-warning btn-edit mb-1 w-100" data-id="${docSnap.id}">Edit</button>
-                        <button class="btn btn-sm btn-danger btn-delete w-100" data-id="${docSnap.id}">Hapus</button>
+                        <button class="btn btn-sm btn-warning btn-edit mb-1 w-100" data-id="${item.id}">Edit</button>
+                        <button class="btn btn-sm btn-danger btn-delete w-100" data-id="${item.id}">Hapus</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            // Pasang Event Listener untuk tombol Edit & Hapus
+            // Re-attach Event Listener
             document.querySelectorAll('.btn-edit').forEach(btn => {
                 btn.addEventListener('click', () => editLaptop(btn.dataset.id));
             });
             document.querySelectorAll('.btn-delete').forEach(btn => {
                 btn.addEventListener('click', () => deleteLaptop(btn.dataset.id));
+            });
+        };
+
+        // Listener Realtime: Otomatis update tabel jika ada perubahan di database
+        const q = query(collection(db, "laptops"), orderBy("createdAt", "desc"));
+        onSnapshot(q, (snapshot) => {
+            allLaptopsList = [];
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                laptopsData[docSnap.id] = data; // Simpan data ke state lokal
+                allLaptopsList.push({ id: docSnap.id, ...data });
+            });
+
+            // Render ulang dengan keyword yang ada di input (jika ada)
+            const searchVal = document.getElementById('searchInput').value;
+            renderTable(searchVal);
+        });
+
+        // Event Listener Search Input
+        document.getElementById('searchInput').addEventListener('keyup', (e) => {
+            renderTable(e.target.value);
+        });
+
+        // Event Listener Filter Buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // Update UI tombol
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active', 'btn-dark'));
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.add('btn-outline-dark')); // Reset style
+                e.target.classList.add('active', 'btn-dark');
+                
+                currentFilter = e.target.dataset.filter;
+                renderTable(document.getElementById('searchInput').value);
             });
         });
 
@@ -187,6 +254,7 @@
             document.getElementById('features').value = data.features;
             document.getElementById('price').value = data.price;
             document.getElementById('stock').value = data.stock;
+            document.getElementById('status').value = data.status || 'active'; // Default active jika data lama
 
             // Ubah tampilan tombol
             const btnSubmit = document.querySelector('#laptopForm button[type="submit"]');
@@ -239,6 +307,7 @@
                     features: document.getElementById('features').value,
                     price: Number(document.getElementById('price').value),
                     stock: Number(document.getElementById('stock').value),
+                    status: document.getElementById('status').value,
                     updatedAt: new Date()
                 };
 
@@ -326,6 +395,7 @@
                             features: cols[5].trim(),
                             price: Number(priceClean),
                             stock: Number(stockClean),
+                            status: 'active', // Default aktif untuk upload CSV
                             createdAt: new Date()
                         });
                         successCount++;

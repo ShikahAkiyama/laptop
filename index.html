@@ -155,6 +155,10 @@
         querySnapshot.forEach((doc) => {
             const data = doc.data();
             const brand = data.brand.toLowerCase();
+            
+            // Cek Status: Jika 'inactive', jangan ditampilkan. 
+            // (Data lama tanpa field status dianggap active)
+            if (data.status === 'inactive') return;
 
             if (brand.includes('lenovo')) {
                 lenovoContainer.innerHTML += renderTableRow(data);
