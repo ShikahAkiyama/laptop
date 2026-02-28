@@ -7,8 +7,9 @@
     .card { border: none !important; box-shadow: none !important; }
     .card-header { display: none !important; }
     body { background-color: white !important; -webkit-print-color-adjust: exact; margin: 1cm; }
-    /* Sembunyikan kolom Aksi (kolom ke-4) */
-    #adminTable th:nth-child(4), #adminTable td:nth-child(4) { display: none !important; }
+    /* Sembunyikan kolom Checkbox (ke-1) dan Aksi (ke-5) */
+    #adminTable th:nth-child(1), #adminTable td:nth-child(1) { display: none !important; }
+    #adminTable th:nth-child(5), #adminTable td:nth-child(5) { display: none !important; }
     /* Sembunyikan Status (Aktif/Non-Aktif) saat cetak */
     #adminTable .badge.bg-success, #adminTable .badge.bg-secondary { display: none !important; }
     /* Perkecil font tabel agar muat lebih banyak */
@@ -16,9 +17,7 @@
     #adminTable td, #adminTable th { padding: 4px 8px !important; }
     .printable-header { display: block !important; margin-bottom: 20px; text-align: center; }
     .table-responsive { overflow: visible !important; }
-
-    /* Logic Hide Kolom Pilihan */
-    table.hide-col-brand .col-brand { display: none !important; }
-    table.hide-col-specs .col-specs { display: none !important; }
-    table.hide-col-price .col-price { display: none !important; }
+    
+    /* Logic Cetak Pilihan: Jika ada yang dipilih, sembunyikan yang tidak dipilih */
+    table.has-selection tbody tr:not(.is-selected) { display: none !important; }
 }

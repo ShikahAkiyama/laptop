@@ -18,6 +18,7 @@ const db = getFirestore(app);
 const laptopsData = {};
 let allLaptopsList = []; // Array untuk menyimpan data agar mudah difilter
 let currentFilter = 'all'; // Status filter saat ini
+const selectedLaptopIds = new Set(); // Menyimpan ID laptop yang dipilih untuk dicetak
 
 // Fungsi Menampilkan Toast
 const showToast = (message, type = 'success') => {
@@ -77,6 +78,14 @@ const renderTable = () => {
     const tbody = document.querySelector('#adminTable tbody');
     tbody.innerHTML = '';
 
+    // Update class tabel untuk logika cetak (jika ada yang dipilih)
+    const table = document.getElementById('adminTable');
+    if (selectedLaptopIds.size > 0) {
+        table.classList.add('has-selection');
+    } else {
+        table.classList.remove('has-selection');
+    }
+
     let filtered = allLaptopsList.filter(item => {
         // Filter Keyword
         const searchStr = (item.brand + ' ' + item.model + ' ' + item.processor + ' ' + item.features).toLowerCase();
@@ -111,8 +120,15 @@ const renderTable = () => {
             ? '<span class="badge bg-secondary">Non-Aktif</span>' 
             : '<span class="badge bg-success">Aktif</span>';
 
+        const isChecked = selectedLaptopIds.has(item.id) ? 'checked' : '';
+        const rowClass = selectedLaptopIds.has(item.id) ? 'is-selected' : '';
+
         const tr = document.createElement('tr');
+        tr.className = rowClass;
         tr.innerHTML = `
+            <td class="text-center no-print">
+                <input type="checkbox" class="form-check-input select-item" value="${item.id}" ${isChecked}>
+            </td>
             <td class="col-brand">
                 <span class="badge bg-primary mb-1">${item.brand}</span><br>
                 <b>${item.model}</b>
@@ -140,6 +156,25 @@ const renderTable = () => {
     });
     document.querySelectorAll('.btn-delete').forEach(btn => {
         btn.addEventListener('click', () => deleteLaptop(btn.dataset.id));
+    });
+
+    // Event Listener Checkbox Seleksi
+    document.querySelectorAll('.select-item').forEach(cb => {
+        cb.addEventListener('change', (e) => {
+            const id = e.target.value;
+            const tr = e.target.closest('tr');
+            if (e.target.checked) {
+                selectedLaptopIds.add(id);
+                tr.classList.add('is-selected');
+                table.classList.add('has-selection');
+            } else {
+                selectedLaptopIds.delete(id);
+                tr.classList.remove('is-selected');
+                if (selectedLaptopIds.size === 0) {
+                    table.classList.remove('has-selection');
+                }
+            }
+        });
     });
 };
 
@@ -177,6 +212,7 @@ document.getElementById('btnResetFilter').addEventListener('click', () => {
     document.getElementById('minPrice').value = '';
     document.getElementById('maxPrice').value = '';
     document.getElementById('sortBy').value = 'newest';
+    selectedLaptopIds.clear(); // Reset pilihan cetak juga
     renderTable();
 });
 
@@ -328,17 +364,4 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
         fileInput.value = ''; // Reset input
     };
     reader.readAsText(file);
-});
-
-// Event Listener Opsi Cetak (Show/Hide Kolom)
-document.querySelectorAll('.print-toggle').forEach(toggle => {
-    toggle.addEventListener('change', (e) => {
-        const table = document.getElementById('adminTable');
-        const target = e.target.dataset.target; // contoh: 'col-brand'
-        if (e.target.checked) {
-            table.classList.remove(`hide-${target}`);
-        } else {
-            table.classList.add(`hide-${target}`);
-        }
-    });
 });
