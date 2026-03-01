@@ -373,6 +373,9 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
             return str.replace(/""/g, '"');
         };
         
+        // Regex untuk split CSV yang menghandle quoted string (delimiter di dalam quote tidak dipisah)
+        const splitRegex = new RegExp(`${delimiter}(?=(?:(?:[^"]*"){2})*[^"]*$)`);
+
         let successCount = 0;
         let duplicateCount = 0;
         let updatedCount = 0;
@@ -382,7 +385,7 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
             const row = dataRows[i];
             statusEl.innerText = `Mengupload data ke-${i + 1} dari ${total}...`;
             
-            const cols = row.split(delimiter);
+            const cols = row.split(splitRegex);
             if (cols.length < 8) continue; // Minimal sampai stock
 
             try {
@@ -479,44 +482,39 @@ document.getElementById('btnDownloadCsv').addEventListener('click', () => {
     }
 
     // Header sesuai format upload (menggunakan delimiter titik koma ';' agar lebih aman)
-    let csvContent = "brand;model;processor;ram;storage;features;price;originalPrice;stock;images;misc\n";
+    const headers = ["brand", "model", "processor", "ram", "storage", "features", "price", "originalPrice", "stock", "images", "misc"];
+    let csvContent = headers.join(";") + "\n";
 
     allLaptopsList.forEach(item => {
-        // Helper untuk membersihkan teks
-        const clean = (text) => {
-            let str = String(text || '');
+        const row = headers.map(fieldName => {
+            let val = item[fieldName];
+
+            // Handle Images (Array to String)
+            if (fieldName === 'images' && Array.isArray(val)) {
+                val = val.join("|");
+            }
+
+            // Normalisasi ke String
+            val = String(val || "");
+
+            // Bersihkan karakter non-printable
+            val = val.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
+
+            // Ganti newline dengan spasi (agar tidak merusak baris CSV)
+            val = val.replace(/(\r\n|\n|\r)/g, " ");
+
+            // Escape Double Quotes (" menjadi "")
+            val = val.replace(/"/g, '""');
+
+            // Jika mengandung delimiter (;) atau quote ("), bungkus dengan quote
+            if (val.search(/("|;)/g) >= 0) {
+                val = `"${val}"`;
+            }
             
-            // Hapus BOM dan karakter Non-Printable (Control Chars ASCII 0-31 & 127)
-            str = str.replace(/\uFEFF/g, '').replace(/[\x00-\x1F\x7F]/g, '');
-
-            // Hapus simbol dekoratif (Emoji, Bintang, Underscore, Kurung Siku, Sama Dengan, dll)
-            str = str.replace(/[✅√💰‼️*=_\[\]]/g, '');
-            // Ganti titik koma dengan koma (karena ; dipakai sebagai pemisah kolom)
-            str = str.replace(/;/g, ',');
-            // Hapus baris baru dan tab
-            str = str.replace(/[\r\n\t]+/g, ' ');
-            // Hapus spasi berlebih
-            str = str.replace(/\s+/g, ' ');
-            return str.trim();
-        };
+            return val;
+        });
         
-        const images = (item.images || []).join('|');
-
-        const row = [
-            clean(item.brand),
-            clean(item.model),
-            clean(item.processor),
-            clean(item.ram),
-            clean(item.storage),
-            clean(item.features),
-            item.price || 0,
-            item.originalPrice || 0,
-            item.stock || 0,
-            images,
-            clean(item.misc)
-        ].join(';');
-        
-        csvContent += row + "\n";
+        csvContent += row.join(';') + "\n";
     });
 
     // Trigger Download File
