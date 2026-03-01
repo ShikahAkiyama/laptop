@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Gambar Masal - Service Komputer Surabaya ID</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 40px; background-color: #f4f4f4; }
+        .container { max-width: 700px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { margin-top: 0; color: #2c3e50; }
+        .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; color: white; }
+        .btn-upload { background-color: #3498db; }
+        .btn-upload:hover { background-color: #2980b9; }
+        .btn-copy { background-color: #27ae60; margin-top: 10px; }
+        textarea { width: 100%; height: 150px; margin-top: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace; font-size: 0.9rem; }
+        #status { margin-top: 20px; max-height: 200px; overflow-y: auto; border: 1px solid #eee; padding: 10px; background: #fafafa; }
+        .status-item { margin-bottom: 5px; font-size: 0.9rem; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Upload Gambar Masal</h2>
+        <p>Pilih banyak gambar sekaligus, lalu klik Upload. URL akan muncul di bawah.</p>
+        
+        <input type="file" id="fileInput" multiple accept="image/*">
+        <br><br>
+        <button onclick="uploadImages()" class="btn btn-upload">Mulai Upload</button>
+        
+        <div id="status"></div>
+        
+        <h3>Hasil URL (Format CSV):</h3>
+        <p style="font-size: 0.8rem; color: #666;">Copy hasil di bawah ini ke kolom <strong>image_url</strong> di file CSV Anda.</p>
+        <textarea id="urlOutput" readonly placeholder="URL gambar akan muncul di sini..."></textarea>
+        <button onclick="copyToClipboard()" class="btn btn-copy">Salin ke Clipboard</button>
+
+        <hr style="margin: 30px 0; border: 0; border-top: 1px solid #ddd;">
+        
+        <h3>Kelola Penyimpanan (Hapus Gambar)</h3>
+        <p>Lihat dan hapus gambar yang sudah tidak terpakai di server.</p>
+        <button onclick="loadGallery()" class="btn" style="background-color: #e67e22;">Muat Daftar Gambar</button>
+        <div id="gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 20px;"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL, listAll, deleteObject } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // Konfigurasi Firebase (Sama dengan script.js)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCK5nyqWkgD9WI0K9naso5KtHLFT9oNTXs",
+            authDomain: "servicekomputersurabaya.firebaseapp.com",
+            projectId: "servicekomputersurabaya",
+            storageBucket: "servicekomputersurabaya.firebasestorage.app",
+            messagingSenderId: "985678673202",
+            appId: "1:985678673202:web:4ab14bfb82fc3dee4ad32b",
+            measurementId: "G-12RJTSNG7S"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const storage = getStorage(app);
+        const auth = getAuth(app);
+
+        // Deteksi status login agar Storage Rules mengizinkan upload
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                document.getElementById('status').innerHTML = '<div class="status-item error">⚠️ <b>Akses Ditolak:</b> Anda belum login. Silakan login di halaman Admin terlebih dahulu, lalu refresh halaman ini.</div>';
+            }
+        });
+
+        window.uploadImages = async function() {
+            const fileInput = document.getElementById('fileInput');
+            const files = fileInput.files;
+            const statusDiv = document.getElementById('status');
+            const output = document.getElementById('urlOutput');
+            
+            if (!auth.currentUser) {
+                alert("Akses Ditolak: Anda belum login. Silakan login di halaman Admin terlebih dahulu.");
+                return;
+            }
+
+            if (files.length === 0) {
+                alert("Silakan pilih file gambar terlebih dahulu!");
+                return;
+            }
+
+            statusDiv.innerHTML = "<div>Memulai proses upload...</div>";
+            output.value = "";
+            let urls = [];
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                // Buat nama file unik agar tidak tertimpa
+                const fileName = `products/${Date.now()}_${file.name}`;
+                const storageRef = ref(storage, fileName);
+                
+                try {
+                    statusDiv.innerHTML += `<div class="status-item">Mengupload <b>${file.name}</b>...</div>`;
+                    const snapshot = await uploadBytes(storageRef, file);
+                    const url = await getDownloadURL(snapshot.ref);
+                    urls.push(url);
+                    statusDiv.innerHTML += `<div class="status-item success">✅ ${file.name} berhasil.</div>`;
+                } catch (error) {
+                    console.error(error);
+                    statusDiv.innerHTML += `<div class="status-item error">❌ ${file.name} gagal: ${error.message}</div>`;
+                }
+            }
+
+            // Gabungkan URL dengan pemisah " | " agar kompatibel dengan logika admin.html
+            output.value = urls.join(" | ");
+            alert("Proses upload selesai!");
+        }
+
+        window.copyToClipboard = function() {
+            const copyText = document.getElementById("urlOutput");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); // Untuk mobile
+            navigator.clipboard.writeText(copyText.value).then(() => {
+                alert("URL berhasil disalin!");
+            });
+        }
+
+        window.loadGallery = async function() {
+            const gallery = document.getElementById('gallery');
+            const statusDiv = document.getElementById('status');
+            
+            if (!auth.currentUser) {
+                alert("Silakan login terlebih dahulu!");
+                return;
+            }
+
+            gallery.innerHTML = "<p>Sedang memuat daftar gambar...</p>";
+            
+            // Asumsi semua gambar ada di folder 'products/' sesuai logic upload
+            const listRef = ref(storage, 'products/');
+
+            try {
+                const res = await listAll(listRef);
+                gallery.innerHTML = "";
+                
+                if (res.items.length === 0) {
+                    gallery.innerHTML = "<p>Tidak ada gambar di folder products.</p>";
+                    return;
+                }
+
+                statusDiv.innerHTML = `<div class="status-item">Ditemukan ${res.items.length} gambar di storage.</div>`;
+
+                for (const itemRef of res.items) {
+                    const url = await getDownloadURL(itemRef);
+                    const div = document.createElement('div');
+                    div.style = "border: 1px solid #ddd; padding: 5px; text-align: center; background: #fff; border-radius: 4px;";
+                    div.innerHTML = `
+                        <div style="height: 100px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 5px;">
+                            <img src="${url}" style="max-width: 100%; max-height: 100%;">
+                        </div>
+                        <div style="font-size: 0.7rem; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 5px;">${itemRef.name}</div>
+                        <button onclick="deleteImage('${itemRef.fullPath}')" style="background: #e74c3c; color: white; border: none; padding: 4px 8px; cursor: pointer; border-radius: 3px; font-size: 0.8rem;">Hapus</button>
+                    `;
+                    gallery.appendChild(div);
+                }
+            } catch (error) {
+                console.error(error);
+                gallery.innerHTML = `<p style="color:red">Gagal memuat galeri: ${error.message}</p>`;
+            }
+        }
+
+        window.deleteImage = async function(fullPath) {
+            if(!confirm("Apakah Anda yakin ingin menghapus gambar ini secara permanen?")) return;
+            
+            const fileRef = ref(storage, fullPath);
+            try {
+                await deleteObject(fileRef);
+                alert("Gambar berhasil dihapus!");
+                // Hapus elemen dari tampilan tanpa reload semua (opsional, atau reload saja)
+                loadGallery(); 
+            } catch (error) {
+                alert("Gagal menghapus: " + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
