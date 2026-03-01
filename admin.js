@@ -67,7 +67,7 @@ const editLaptop = (id) => {
     document.getElementById('originalPrice').value = data.originalPrice || '';
     document.getElementById('stock').value = data.stock;
     document.getElementById('status').value = data.status || 'active'; // Default active jika data lama
-    document.getElementById('images').value = (data.images || []).join(', ');
+    document.getElementById('images').value = (data.images || []).join(' | ');
     document.getElementById('misc').value = data.misc || '';
 
     // Ubah tampilan tombol
@@ -291,7 +291,7 @@ document.getElementById('laptopForm').addEventListener('submit', async (e) => {
             originalPrice: Number(document.getElementById('originalPrice').value),
             stock: Number(document.getElementById('stock').value),
             status: document.getElementById('status').value,
-            images: document.getElementById('images').value.split(',').map(url => url.trim()).filter(url => url !== ''),
+            images: document.getElementById('images').value.split('|').map(url => url.trim()).filter(url => url !== ''),
             misc: document.getElementById('misc').value,
             updatedAt: new Date()
         };
