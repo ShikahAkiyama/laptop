@@ -17,12 +17,21 @@
         .status-item { margin-bottom: 5px; font-size: 0.9rem; }
         .success { color: green; }
         .error { color: red; }
+        /* Modal Login Styles */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: white; margin: 15% auto; padding: 30px; border-radius: 8px; width: 350px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center; }
+        .modal input { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; border: 1px solid #ddd; border-radius: 4px; }
+        .modal button { width: 100%; padding: 10px; background-color: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        .modal button:hover { background-color: #219150; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>Upload Gambar Masal</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h2 style="margin: 0;">Upload Gambar Masal</h2>
+            <button id="btnLogout" onclick="logoutAdmin()" class="btn" style="background-color: #e74c3c; display: none; padding: 6px 12px; font-size: 14px;">Logout</button>
+        </div>
         <p>Pilih banyak gambar sekaligus, lalu klik Upload. URL akan muncul di bawah.</p>
         
         <input type="file" id="fileInput" multiple accept="image/*">
@@ -44,10 +53,21 @@
         <div id="gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 20px;"></div>
     </div>
 
+    <!-- Modal Login -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-top: 0;">Login Admin</h3>
+            <input type="email" id="email" placeholder="Email Address">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="loginAdmin()">Masuk</button>
+            <p id="loginError" class="error" style="font-size: 0.9rem; margin-top: 10px;"></p>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getStorage, ref, uploadBytes, getDownloadURL, listAll, deleteObject } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         // Konfigurasi Firebase (Sama dengan script.js)
         const firebaseConfig = {
@@ -66,10 +86,52 @@
 
         // Deteksi status login agar Storage Rules mengizinkan upload
         onAuthStateChanged(auth, (user) => {
+            const btnLogout = document.getElementById('btnLogout');
             if (!user) {
-                document.getElementById('status').innerHTML = '<div class="status-item error">⚠️ <b>Akses Ditolak:</b> Anda belum login. Silakan login di halaman Admin terlebih dahulu, lalu refresh halaman ini.</div>';
+                document.getElementById('loginModal').style.display = 'block';
+                document.getElementById('status').innerHTML = '<div class="status-item error">⚠️ Silakan login terlebih dahulu.</div>';
+                if(btnLogout) btnLogout.style.display = 'none';
+            } else {
+                document.getElementById('loginModal').style.display = 'none';
+                document.getElementById('status').innerHTML = '';
+                if(btnLogout) btnLogout.style.display = 'block';
             }
         });
+
+        window.loginAdmin = async function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorP = document.getElementById('loginError');
+            const btn = document.querySelector('#loginModal button');
+            
+            if (!email || !password) {
+                errorP.innerText = "Email dan Password harus diisi!";
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Loading...";
+            errorP.innerText = "";
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                // Modal akan tertutup otomatis oleh onAuthStateChanged
+            } catch (error) {
+                console.error(error);
+                errorP.innerText = "Login Gagal: " + error.message;
+                btn.disabled = false;
+                btn.innerText = "Masuk";
+            }
+        }
+
+        window.logoutAdmin = async function() {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error(error);
+                alert("Logout Gagal: " + error.message);
+            }
+        }
 
         window.uploadImages = async function() {
             const fileInput = document.getElementById('fileInput');
