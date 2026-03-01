@@ -165,6 +165,7 @@ const renderTable = () => {
                 ${statusBadge}
             </td>
             <td>
+                <a href="index.html?id=${item.id}" target="_blank" class="btn btn-sm btn-info text-white mb-1 w-100"><i class="bi bi-eye"></i> Lihat</a>
                 <button class="btn btn-sm btn-warning btn-edit mb-1 w-100" data-id="${item.id}">Edit</button>
                 <button class="btn btn-sm btn-danger btn-delete w-100" data-id="${item.id}">Hapus</button>
             </td>
