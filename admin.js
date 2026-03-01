@@ -357,6 +357,13 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
         }
 
         const statusEl = document.getElementById('uploadStatus');
+        const errorLogArea = document.getElementById('errorLogArea');
+        
+        // Reset area error log (sembunyikan dulu saat mulai upload baru)
+        if (errorLogArea) {
+            errorLogArea.classList.add('d-none');
+            errorLogArea.value = '';
+        }
         
         // Deteksi delimiter dari baris pertama (Koma atau Titik Koma)
         const firstLine = text.split('\n')[0];
@@ -499,17 +506,14 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
         let resultMsg = `Selesai! ${successCount} baru, ${updatedCount} update, ${duplicateCount} dilewati.`;
         if (errorLog.length > 0) {
             resultMsg += ` ${errorLog.length} GAGAL.`;
-            alert(`Terdapat ${errorLog.length} baris yang gagal diupload.\nFile log error akan didownload otomatis. Silakan cek file tersebut.`);
             
-            // Download Error Log
-            const blob = new Blob([errorLog.join('\n')], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `error_log_upload_${new Date().getTime()}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            // Tampilkan error di Textarea (Manual View)
+            if (errorLogArea) {
+                errorLogArea.value = "=== LAPORAN ERROR UPLOAD ===\n" + errorLog.join('\n');
+                errorLogArea.classList.remove('d-none');
+            }
+            
+            alert(`Terdapat ${errorLog.length} baris yang gagal diupload.\nSilakan cek detail error di kotak teks di bawah tombol upload.`);
         }
 
         statusEl.innerText = resultMsg;
