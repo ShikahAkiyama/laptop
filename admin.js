@@ -341,13 +341,35 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
 
         const statusEl = document.getElementById('uploadStatus');
         
-        // Normalisasi baris baru dan hapus baris kosong
-        const allLines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n').filter(line => line.trim() !== '');
+        // Deteksi delimiter dari baris pertama (Koma atau Titik Koma)
+        const firstLine = text.split('\n')[0];
+        const delimiter = firstLine && firstLine.includes(';') ? ';' : ',';
         
-        // Cek apakah baris pertama adalah header
-        let dataRows = allLines;
-        if (allLines.length > 0 && allLines[0].toLowerCase().includes('brand')) {
-            dataRows = allLines.slice(1);
+        // Normalisasi baris baru & Handle Multiline CSV (Baris baru di dalam kutip)
+        const rawLines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+        const dataRows = [];
+        let tempRow = '';
+
+        for (let line of rawLines) {
+            if (line.trim() === '' && tempRow === '') continue;
+
+            // Gabungkan baris jika sedang dalam kutip (multiline cell)
+            let combined = tempRow ? tempRow + '\n' + line : line;
+            
+            // Hitung jumlah kutip (jika ganjil, berarti baris belum selesai)
+            const quoteCount = (combined.match(/"/g) || []).length;
+
+            if (quoteCount % 2 === 0) {
+                dataRows.push(combined);
+                tempRow = '';
+            } else {
+                tempRow = combined;
+            }
+        }
+
+        // Hapus Header jika ada
+        if (dataRows.length > 0 && dataRows[0].toLowerCase().includes('brand')) {
+            dataRows.shift();
         }
 
         if (dataRows.length === 0) {
@@ -357,8 +379,6 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
             return;
         }
 
-        // Deteksi delimiter (koma atau titik koma)
-        const delimiter = dataRows[0].includes(';') ? ';' : ',';
         const updateDuplicates = document.getElementById('chkUpdateDuplicates').checked;
 
         // Helper untuk membersihkan value CSV (Excel Format)
@@ -481,9 +501,9 @@ document.getElementById('btnDownloadCsv').addEventListener('click', () => {
         return;
     }
 
-    // Header sesuai format upload (menggunakan delimiter titik koma ';' agar lebih aman)
+    // Header sesuai format upload (menggunakan delimiter koma ',' sesuai contoh.txt)
     const headers = ["brand", "model", "processor", "ram", "storage", "features", "price", "originalPrice", "stock", "images", "misc"];
-    let csvContent = headers.join(";") + "\n";
+    let csvContent = headers.join(",") + "\n";
 
     allLaptopsList.forEach(item => {
         const row = headers.map(fieldName => {
@@ -506,15 +526,15 @@ document.getElementById('btnDownloadCsv').addEventListener('click', () => {
             // Escape Double Quotes (" menjadi "")
             val = val.replace(/"/g, '""');
 
-            // Jika mengandung delimiter (;) atau quote ("), bungkus dengan quote
-            if (val.search(/("|;)/g) >= 0) {
+            // Jika mengandung delimiter (,) atau quote ("), bungkus dengan quote
+            if (val.search(/("|;|,)/g) >= 0) {
                 val = `"${val}"`;
             }
             
             return val;
         });
         
-        csvContent += row.join(';') + "\n";
+        csvContent += row.join(',') + "\n";
     });
 
     // Trigger Download File
