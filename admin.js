@@ -351,6 +351,11 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
         // Hapus BOM (Byte Order Mark) jika ada
         text = text.replace(/^\uFEFF/, '');
 
+        // Cek apakah masih ada karakter replacement () yang menandakan encoding mungkin salah
+        if (text.includes('')) {
+            alert("Peringatan: Terdeteksi karakter yang tidak terbaca (). Pastikan file CSV disimpan dengan encoding UTF-8 atau Windows-1252 (ANSI). Simbol derajat (°) mungkin akan rusak.");
+        }
+
         const statusEl = document.getElementById('uploadStatus');
         
         // Deteksi delimiter dari baris pertama (Koma atau Titik Koma)
@@ -411,6 +416,7 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
         let successCount = 0;
         let duplicateCount = 0;
         let updatedCount = 0;
+        let errorLog = []; // Menyimpan daftar baris yang error
         const total = dataRows.length;
 
         for (let i = 0; i < total; i++) {
@@ -418,7 +424,10 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
             statusEl.innerText = `Mengupload data ke-${i + 1} dari ${total}...`;
             
             const cols = row.split(splitRegex);
-            if (cols.length < 8) continue; // Minimal sampai stock
+            if (cols.length < 8) {
+                errorLog.push(`Baris ${i + 1}: Gagal (Kolom tidak lengkap, terdeteksi ${cols.length} kolom). Cek delimiter atau tanda kutip.`);
+                continue; 
+            }
 
             try {
                 // Bersihkan angka dari karakter non-digit (misal: Rp, titik)
@@ -426,6 +435,10 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
                 const originalPriceClean = cols[7] ? cols[7].replace(/[^0-9]/g, '') : '0';
                 const stockClean = cols[8].replace(/[^0-9]/g, '');
                 
+                if (!priceClean) {
+                    throw new Error("Harga kosong atau format salah");
+                }
+
                 // Parse Images (Kolom ke-10, index 9)
                 let images = [];
                 if (cols[9]) {
@@ -479,11 +492,28 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
                 }
             } catch (err) {
                 console.error("Gagal upload baris:", row, err);
+                errorLog.push(`Baris ${i + 1}: Gagal - ${err.message} | Data: ${row.substring(0, 50)}...`);
             }
         }
         
-        statusEl.innerText = `Selesai! ${successCount} baru, ${updatedCount} update, ${duplicateCount} dilewati.`;
-        showToast(`Upload: ${successCount} Baru, ${updatedCount} Update`, 'success');
+        let resultMsg = `Selesai! ${successCount} baru, ${updatedCount} update, ${duplicateCount} dilewati.`;
+        if (errorLog.length > 0) {
+            resultMsg += ` ${errorLog.length} GAGAL.`;
+            alert(`Terdapat ${errorLog.length} baris yang gagal diupload.\nFile log error akan didownload otomatis. Silakan cek file tersebut.`);
+            
+            // Download Error Log
+            const blob = new Blob([errorLog.join('\n')], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `error_log_upload_${new Date().getTime()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        statusEl.innerText = resultMsg;
+        showToast(`Upload Selesai. Cek status di bawah tombol.`, errorLog.length > 0 ? 'error' : 'success');
         btn.disabled = false;
         btn.innerText = 'Upload CSV';
         fileInput.value = ''; // Reset input
