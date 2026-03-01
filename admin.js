@@ -334,9 +334,21 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
 
     const reader = new FileReader();
     reader.onload = async function(e) {
-        let text = e.target.result;
+        const buffer = e.target.result;
+        let text;
 
-        // Hapus BOM (Byte Order Mark) jika ada di awal file (biasanya dari Excel CSV UTF-8)
+        // Deteksi Encoding: Coba UTF-8 dulu, jika gagal (error) berarti mungkin ANSI/Windows-1252
+        try {
+            // fatal: true akan throw error jika ada byte yang tidak valid di UTF-8 (seperti simbol derajat dari file ANSI)
+            const decoder = new TextDecoder('utf-8', { fatal: true });
+            text = decoder.decode(buffer);
+        } catch (err) {
+            // Fallback ke Windows-1252 (Format standar Excel CSV di Windows/Indonesia)
+            const decoder = new TextDecoder('windows-1252');
+            text = decoder.decode(buffer);
+        }
+
+        // Hapus BOM (Byte Order Mark) jika ada
         text = text.replace(/^\uFEFF/, '');
 
         const statusEl = document.getElementById('uploadStatus');
@@ -476,7 +488,7 @@ document.getElementById('btnUploadCsv').addEventListener('click', async () => {
         btn.innerText = 'Upload CSV';
         fileInput.value = ''; // Reset input
     };
-    reader.readAsText(file);
+    reader.readAsArrayBuffer(file);
 });
 
 // Event Listener Dropdown Brand (Tampilkan Input Manual jika pilih Lain-lain)
