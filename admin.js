@@ -67,7 +67,12 @@ const editLaptop = (id) => {
     document.getElementById('originalPrice').value = data.originalPrice || '';
     document.getElementById('stock').value = data.stock;
     document.getElementById('status').value = data.status || 'active'; // Default active jika data lama
-    document.getElementById('images').value = (data.images || []).join(' | ');
+    
+    // Handle Images: Cek apakah array atau string (legacy data)
+    let imgData = data.images || [];
+    if (!Array.isArray(imgData)) imgData = [imgData]; // Konversi string ke array jika perlu
+    document.getElementById('images').value = imgData.join(' | ');
+
     document.getElementById('misc').value = data.misc || '';
 
     // Ubah tampilan tombol
@@ -104,8 +109,13 @@ const renderTable = () => {
     const table = document.getElementById('adminTable');
     if (selectedLaptopIds.size > 0) {
         table.classList.add('has-selection');
+        // Tampilkan tombol hapus massal
+        const btnDel = document.getElementById('btnDeleteSelected');
+        btnDel.classList.remove('d-none');
+        btnDel.innerText = `Hapus ${selectedLaptopIds.size} Data Terpilih`;
     } else {
         table.classList.remove('has-selection');
+        document.getElementById('btnDeleteSelected').classList.add('d-none');
     }
 
     let filtered = allLaptopsList.filter(item => {
@@ -190,12 +200,14 @@ const renderTable = () => {
                 selectedLaptopIds.add(id);
                 tr.classList.add('is-selected');
                 table.classList.add('has-selection');
+                renderTable(); // Re-render untuk update tombol hapus (opsional: bisa optimasi DOM langsung)
             } else {
                 selectedLaptopIds.delete(id);
                 tr.classList.remove('is-selected');
                 if (selectedLaptopIds.size === 0) {
                     table.classList.remove('has-selection');
                 }
+                renderTable(); // Re-render untuk update tombol hapus
             }
         });
     });
@@ -250,6 +262,27 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
         currentFilter = e.target.dataset.filter;
         renderTable();
     });
+});
+
+// Event Listener Tombol Hapus Massal
+document.getElementById('btnDeleteSelected').addEventListener('click', async () => {
+    const count = selectedLaptopIds.size;
+    if (count === 0) return;
+
+    if (confirm(`Yakin ingin menghapus ${count} data yang dipilih secara permanen?`)) {
+        const btn = document.getElementById('btnDeleteSelected');
+        btn.disabled = true;
+        btn.innerText = 'Menghapus...';
+
+        try {
+            const promises = Array.from(selectedLaptopIds).map(id => deleteDoc(doc(db, "laptops", id)));
+            await Promise.all(promises);
+            showToast(`${count} data berhasil dihapus!`, 'success');
+            selectedLaptopIds.clear();
+        } catch (error) {
+            showToast('Gagal menghapus: ' + error.message, 'error');
+        }
+    }
 });
 
 // Fungsi Reset Form (Batal Edit / Selesai Simpan)

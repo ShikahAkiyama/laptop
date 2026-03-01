@@ -520,14 +520,23 @@
         
         // Render Images (Carousel or Single Image)
         const imgContainer = document.getElementById('modalImageContainer');
-        if (laptop.images && laptop.images.length > 0) {
-            if (laptop.images.length === 1) {
-                imgContainer.innerHTML = `<img src="${laptop.images[0]}" class="img-fluid rounded-3" style="max-height: 300px; object-fit: contain;">`;
+        
+        // Normalisasi data images (jika string/legacy, ubah jadi array)
+        let images = laptop.images || [];
+        if (!Array.isArray(images)) {
+            // Jika string dipisah koma atau pipe, split jadi array
+            images = String(images).includes('|') ? String(images).split('|') : String(images).split(',');
+            images = images.map(s => s.trim()).filter(s => s !== '');
+        }
+
+        if (images.length > 0) {
+            if (images.length === 1) {
+                imgContainer.innerHTML = `<img src="${images[0]}" class="img-fluid rounded-3" style="max-height: 300px; object-fit: contain;">`;
             } else {
                 // Bootstrap Carousel
                 let indicators = '';
                 let items = '';
-                laptop.images.forEach((img, idx) => {
+                images.forEach((img, idx) => {
                     const active = idx === 0 ? 'active' : '';
                     indicators += `<button type="button" data-bs-target="#productCarousel" data-bs-slide-to="${idx}" class="${active}"></button>`;
                     items += `<div class="carousel-item ${active}"><img src="${img}" class="d-block w-100 rounded-3" style="height: 300px; object-fit: contain;"></div>`;
